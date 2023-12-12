@@ -11,7 +11,7 @@ export default function Chatbot(){
     }
 
     const handleSendMessage= ()=>{
-        console.log("Sending Message: ${inputText}");
+        console.log("Sending Message:" , {inputText});
         setInputText('');
     }
     return(
