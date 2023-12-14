@@ -43,7 +43,6 @@ h1{
 .chatbox{
     display: flex;
     flex-direction: column;
-    
     justify-content: space-between;
     position: fixed;
     bottom: 0;
@@ -78,9 +77,33 @@ h1{
     width: 20px;
     height: 20px;
     margin-left: -38px;
+    transition: background-color 0.3s ease;
+
 }
+
+
 .input-button{
     display: flex;
     align-items: center;
     width: 100%;
+}
+.message-container{
+    margin-top: 20px;
+    
+    
+}
+
+.message{
+    display: block;
+    max-width: max-content;
+    margin-left: auto;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+.user-message{
+    background-color: #015DBB;
+    color: white;
+    text-align: right;
+    
 }

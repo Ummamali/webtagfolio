@@ -4,16 +4,24 @@ import Image from "next/image";
 import "./chatbot.css";
 
 export default function Chatbot(){
-    const [inputText, setInputText] = useState('');
-
-    const handleInputChange = (e) =>{
-        setInputText(e.target.value);
-    }
-
-    const handleSendMessage= ()=>{
-        console.log("Sending Message:" , {inputText});
-        setInputText('');
-    }
+    
+        const [inputText, setInputText] = useState('');
+        const [messages, setMessages] = useState([]);
+    
+    
+        const handleInputChange = (e) =>{
+            setInputText(e.target.value);
+        }
+    
+        const handleSendMessage= ()=>{
+            if (inputText.trim() != ''){
+            setMessages([...messages, {text: inputText, isUser:true}]);
+            console.log(inputText.split(" "));
+            setInputText('');
+            }
+        }
+   
+   
     return(
         <div className="c-screen ">
             <div className="title text-white">
@@ -31,6 +39,13 @@ export default function Chatbot(){
                 </div>
             </div>
             <div className="chatbox">
+                <div className="chatbox-container">
+                    {messages.map((message, index) => (
+                    <div key={index} className={`message ${message.isUser ? 'user-message': ' ' }` } >
+                        {message.text}
+                    </div>
+                    ))}
+                </div>
                 <label className="query-label">Query:</label>
                 <div className="input-button">
                     <input
@@ -51,6 +66,7 @@ export default function Chatbot(){
                 </div>
                
             </div>
+            
             
         </div>
         
