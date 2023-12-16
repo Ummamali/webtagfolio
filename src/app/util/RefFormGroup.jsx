@@ -40,7 +40,9 @@ const RefFormGroup = forwardRef((props, ref) => {
           vData={}
           id=""
           label=""
+          labelCls: ""
           type="text"
+          inputCls: {normal: "", error: ""}
           placeholder=""
           autoComplete="off"
           validate={}

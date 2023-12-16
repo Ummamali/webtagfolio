@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import ImagePreview from "./ImagePreview";
+import ImageBox from "./ImageBox";
 
 export default function UploadImage() {
   const [imageFiles, setImageFiles] = useState([]);
@@ -46,30 +46,33 @@ export default function UploadImage() {
   }
 
   return (
-    <div>
-      <h1>Upload Image Page</h1>
+    <div className="bg-mainDarkBG min-h-screen w-screen px-4 py-6">
+      <div className="mb-4">
+        <h1 className="text-2xl text-gray-100/70">Upload an Image</h1>
+        <small className="text-gray-100/50">
+          Upload and save your important media assets to analyze them
+          efficiently
+        </small>
+      </div>
       <div>
         <input
           type="file"
           id="fileInput"
           name="fileInput"
           accept=".jpg, .jpeg"
+          className="text-gray-400"
           multiple={true}
           onChange={listFiles}
         />
-        <div>
-          {imageFiles.map((f) => (
-            <ImagePreview file={f} size={{ height: "100px" }} />
-          ))}
+        <div className="border border-gray-600 rounded p-4 my-3 space-y-2">
+          {imageFiles.length > 0 ? (
+            imageFiles.map((f) => <ImageBox file={f} key={f.name} />)
+          ) : (
+            <small className="text-gray-500 block text-center">
+              No Images to be analyzed
+            </small>
+          )}
         </div>
-
-        <button
-          type="submit"
-          className="bg-green-500 p-4"
-          onClick={uploadAllFiles}
-        >
-          Save All
-        </button>
       </div>
     </div>
   );

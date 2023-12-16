@@ -21,7 +21,12 @@ const ImagePreview = ({ file, size }) => {
         <img
           src={previewUrl}
           alt="Preview"
-          style={{ height: size.height, width: "auto", maxWidth: size.width }}
+          style={{
+            height: size.height,
+            width: "auto",
+            maxWidth: size.width,
+            borderRadius: "3px",
+          }}
         />
       ) : (
         <p>No image selected</p>

@@ -148,11 +148,11 @@ export function getDefaultResetValidator(dispatchValidator) {
   };
 }
 
-export function syncValidateAll(identityStates, validatorCore) {
+export function syncValidateAll(currentValues, validate) {
   // returns whether the given values are valid or not
   const validations = [];
-  for (const [identity, value] of Object.entries(identityStates)) {
-    validations.push(validatorCore(identity, value));
+  for (const [identity, value] of Object.entries(currentValues)) {
+    validations.push(validate(identity, value));
   }
   return !validations.includes(false);
 }
