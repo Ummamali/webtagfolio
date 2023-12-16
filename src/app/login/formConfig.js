@@ -1,15 +1,12 @@
 // form configurations for Login Route
 
-import { isValidEmail } from "../utilFuncs/utilFuncs";
+import { isValidEmail } from "../../utilFuncs/utilFuncs";
 
-export const labelCls = "block text-sm text-white/50";
+// Stylings below
+export const labelCls = "block text-sm text-gray-400";
 
 export const inputCls = {
-  normal:
-    "block border-b border-gray-600 pb-0.5 bg-transparent w-full focus:outline-none focus:border-gray-400 text-white/70 placeholder:text-sm placeholder:italic placeholder:text-white/30 ",
-  invalid:
-    "border-red-500 placeholder:!text-red-500/50 placeholder:font-normal text-red-500",
-  errorMessage: "text-red-500 font-normal",
+  errorMessage: "text-red-500",
 };
 
 // Validation Below

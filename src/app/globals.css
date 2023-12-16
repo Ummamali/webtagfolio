@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Following is the theme for this application */
+
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply py-1.5 px-4 rounded-sm;
+  }
+
+  .btn-mainAccent {
+    @apply btn bg-mainAccent text-white/70 shadow hover:brightness-110;
+  }
+
+  /* input fields of all application will be styled as */
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"] {
+    @apply block bg-gray-600/10 px-1.5 py-2 rounded-sm w-full focus:outline-none border border-gray-600/50 text-gray-400 placeholder:text-sm placeholder:text-gray-500/70 focus:border-mainAccent/70;
+  }
+
+  /* for invalid fields */
+  input[type="text"].invalid,
+  input[type="email"].invalid,
+  input[type="password"].invalid,
+  input[type="number"].invalid {
+    @apply !bg-red-900/20 !border !border-red-500 placeholder:!text-red-500/50 placeholder:!font-normal !text-red-500;
+  }
+}

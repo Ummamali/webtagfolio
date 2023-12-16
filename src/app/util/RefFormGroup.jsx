@@ -40,9 +40,9 @@ const RefFormGroup = forwardRef((props, ref) => {
           vData={}
           id=""
           label=""
-          labelCls: ""
+          labelCls=""
           type="text"
-          inputCls: {normal: "", error: ""}
+          inputCls={normal: "", error: ""}
           placeholder=""
           autoComplete="off"
           validate={}
@@ -51,11 +51,10 @@ const RefFormGroup = forwardRef((props, ref) => {
         />
 
     Stylings:
-      Give custom classes to the group with className prop
-      The returned parent has three elements, you can select them as:
-        -- label
-        -- .input-contain
-        -- p.invalid-msg
+     !NOTE: You must provide error message stylings i.e. inputCls -> {errorMessage}
+      If you dont give inputCls Property:
+        - You can globally style the input element
+        - You can style an invalid input element by input.invalid selector
   
   */
   const isInvalid = props.vData.vStatus === 3;
@@ -65,9 +64,11 @@ const RefFormGroup = forwardRef((props, ref) => {
   let additionalCls = "";
 
   if (isInvalid) {
-    additionalCls = inputCls.invalid;
+    // an 'invalid' class will be given whatsoever
+    additionalCls = "invalid " + (inputCls.invalid ? inputCls.invalid : "");
   } else if (isLoading) {
-    additionalCls = inputCls.loading;
+    // a 'loading' class will be given whatsoever
+    additionalCls = "loading " + (inputCls.loading ? inputCls.loading : "");
   }
 
   return (
@@ -82,7 +83,9 @@ const RefFormGroup = forwardRef((props, ref) => {
         <input
           type={props.type}
           id={props.id}
-          className={inputCls.normal + " " + additionalCls}
+          className={
+            (inputCls.normal ? inputCls.normal : "") + " " + additionalCls
+          }
           ref={ref}
           placeholder={props.placeholder}
           autoComplete={props.autoComplete}

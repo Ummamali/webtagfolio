@@ -9,7 +9,7 @@ import useValidator, {
   getDefaultResetValidator,
   getDefaultValidator,
   syncValidateAll,
-} from "../hooks/useValidator.js";
+} from "../../hooks/useValidator.js";
 import {
   identityList,
   validatorPredicates,
@@ -56,7 +56,7 @@ export default function LogIn() {
   }
 
   return (
-    <div className="h-screen bg-boardingDark flex font-light">
+    <div className="h-screen bg-boardingDark flex">
       <div
         className={
           "hidden w-7/12 h-full loginimg md:flex items-center justify-center"
@@ -75,7 +75,7 @@ export default function LogIn() {
         </div>
       </div>
       <div className="flex-1 px-8">
-        <div className="max-w-[450px] mx-auto mt-20">
+        <div className="max-w-[450px] mx-auto mt-28">
           {err && (
             <p className="bg-red-800 text-white/80 py-2 px-8 rounded-sm text-sm text-center mb-4">
               Error: Invalid Credentials!
@@ -98,7 +98,7 @@ export default function LogIn() {
             </small>
           </div>
 
-          <form className="space-y-7" onSubmit={check}>
+          <form className="space-y-5" onSubmit={check}>
             <RefFormGroup
               vData={validityStatus.email}
               id="email"
@@ -125,18 +125,17 @@ export default function LogIn() {
               resetValidity={getDefaultResetValidator(dispatchValidity)}
               ref={passRef}
             />
-            <button
-              type="submit"
-              className="bg-mainAccent text-white w-full py-1.5 px-4 rounded-sm shadow font-light mt-4 hover:brightness-110"
-            >
+            <button type="submit" className="btn-mainAccent w-full shadow-lg">
               Login
             </button>
           </form>
-          <p className="text-center text-gray-400 text-sm mt-4 font-light">
-            Don't have an account?{" "}
-            <Link href={"/signup"} className="text-mainAccent font-normal">
-              Sign Up
-            </Link>
+          <p className="text-center text-gray-400 mt-2 font-light">
+            <small>
+              Don't have an account?{" "}
+              <Link href={"/signup"} className="text-mainAccent font-normal">
+                Sign Up
+              </Link>
+            </small>
           </p>
         </div>
       </div>

@@ -3,13 +3,25 @@ import Image from "next/image";
 import "./signup.css";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { identityList, validatorPredicates } from "./formConfig.js";
+import { inputCls, labelCls } from "../login/formConfig.js";
+import useValidator, {
+  getDefaultResetValidator,
+  getDefaultValidator,
+} from "../../hooks/useValidator";
+import RefFormGroup from "../util/RefFormGroup";
+import Link from "next/link";
 
 export default function () {
   const [err, setErr] = useState(false);
-  const nameRef = useRef();
+  const emailRef = useRef();
   const passRef = useRef();
   const conpassRef = useRef();
   const router = useRouter();
+  const [validityStatus, dispatchValidity, validate] = useValidator(
+    identityList,
+    validatorPredicates
+  );
 
   function check(e) {
     e.preventDefault();
@@ -40,7 +52,11 @@ export default function () {
 
   return (
     <div className="h-screen bg-boardingDark flex">
-      <div className={"flex-1 h-full signimg flex items-center justify-center"}>
+      <div
+        className={
+          "h-full w-7/12 signimg hidden md:flex items-center justify-center"
+        }
+      >
         <div
           className="w-1/2 h-1/2 relative"
           style={{ mixBlendMode: "overlay" }}
@@ -54,8 +70,8 @@ export default function () {
         </div>
       </div>
       <div className="flex-1">
-        <div className="flex-1 px-8">
-          <div className="max-w-[450px] mx-auto mt-20">
+        <div className="h-full px-24 pt-20">
+          <div className="">
             {err && (
               <p className="bg-red-800 text-white/80 py-2 px-8 rounded-sm text-sm text-center mb-4">
                 {err}
@@ -68,62 +84,68 @@ export default function () {
               </small>
             </div>
 
-            <form className="space-y-7" onSubmit={check}>
-              <div>
-                <label
-                  htmlFor="username"
-                  className="block text-sm text-white/50"
-                >
-                  Username
+            <form className="space-y-5 mb-2" onSubmit={check}>
+              <RefFormGroup
+                vData={validityStatus.email}
+                id="email"
+                label="Email"
+                labelCls={labelCls}
+                type="text"
+                inputCls={inputCls}
+                placeholder="Email here..."
+                autoComplete="off"
+                validate={getDefaultValidator(validate)}
+                resetValidity={getDefaultResetValidator(dispatchValidity)}
+                ref={emailRef}
+              />
+              <RefFormGroup
+                vData={validityStatus.password}
+                id="password"
+                label="Password"
+                labelCls={labelCls}
+                type="password"
+                inputCls={inputCls}
+                placeholder="Password here..."
+                autoComplete="off"
+                validate={getDefaultValidator(validate)}
+                resetValidity={getDefaultResetValidator(dispatchValidity)}
+                ref={passRef}
+              />
+              <RefFormGroup
+                vData={validityStatus.confirmPassword}
+                id="confirmPassword"
+                label="Confirm Password"
+                labelCls={labelCls}
+                type="password"
+                inputCls={inputCls}
+                placeholder="Same password as above..."
+                autoComplete="off"
+                validate={getDefaultValidator(validate)}
+                resetValidity={getDefaultResetValidator(dispatchValidity)}
+                ref={conpassRef}
+              />
+              <div className="flex items-center space-x-2 px-2">
+                <input type="checkbox" name="terms" id="terms" className="" />
+                <label htmlFor="terms" className="text-gray-500/80 text-sm">
+                  I have read and agree to the terms and conditions for usign
+                  this application
                 </label>
-                <input
-                  ref={nameRef}
-                  type="text"
-                  name="username"
-                  id="username"
-                  autoComplete="off"
-                  className="block border-b border-gray-600 bg-transparent w-full focus:outline-none focus:border-gray-400 text-white/70"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm text-white/50"
-                >
-                  Password
-                </label>
-                <input
-                  ref={passRef}
-                  type="password"
-                  name="password"
-                  id="password"
-                  autoComplete="off"
-                  className="block border-b border-gray-600 bg-transparent w-full focus:outline-none focus:border-gray-400 text-white/70"
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="confpassword"
-                  className="block text-sm text-white/50"
-                >
-                  Confirm Password
-                </label>
-                <input
-                  ref={conpassRef}
-                  type="password"
-                  name="confpassword"
-                  id="confpassword"
-                  autoComplete="off"
-                  className="block border-b border-gray-600 bg-transparent w-full focus:outline-none focus:border-gray-400 text-white/70"
-                />
               </div>
               <button
                 type="submit"
-                className="bg-mainAccent text-white w-full py-1 px-4 rounded-sm shadow font-light mt-4"
+                className="btn-mainAccent w-full shadow-lg py-2"
               >
                 Sign Up
               </button>
             </form>
+            <p className="text-gray-500 text-center">
+              <small>
+                Already have an account?{" "}
+                <Link href={"/login"} className="text-mainAccent">
+                  Log In
+                </Link>
+              </small>
+            </p>
           </div>
         </div>
       </div>

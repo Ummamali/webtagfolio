@@ -1,5 +1,5 @@
 import "./globals.css";
-import { roboto } from "./fonts";
+import { globalFont } from "./fonts";
 
 export const metadata = {
   title: "Tagfolio | A Modern Multimedia Analyzer",
@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={roboto.className}>
+    <html lang="en" className={globalFont.className}>
       <body>{children}</body>
     </html>
   );
