@@ -1,6 +1,13 @@
+@import "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined";
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* for material symbols  */
+.material-symbols-outlined {
+  font-size: inherit;
+}
 
 /* Following is the theme for this application */
 

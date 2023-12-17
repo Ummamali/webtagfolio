@@ -9,7 +9,8 @@ module.exports = {
     extend: {
       colors: {
         boardingDark: "hsla(240, 10%, 10%, 1)",
-        mainDarkBG: "#17171C;",
+        mainDark: "#17171C;",
+        lightDark: "hsla(225, 10%, 13%, 1)",
         mainAccent: "hsla(216, 100%, 50%, 1)",
       },
     },
