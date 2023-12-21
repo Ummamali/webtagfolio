@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React from "react";
 
-// following are the links to be shown in the panel
+// CONFIG >>> following are the links to be shown in the panel
 const links = [
   { text: "Dashboard", href: "/dashboard", icon: "home" },
   { text: "My Chats", href: "/chats", icon: "chat" },
@@ -14,20 +14,25 @@ export default function SidePanel() {
   const pathname = usePathname();
   console.log(pathname);
   return (
-    <div className="bg-lightDark px-4 py-3">
-      <div className="text-gray-400 space-y-3 mb-4">
+    <div
+      className="bg-lightDark px-5 py-6 shadow rounded"
+      style={{ display: "grid", gridTemplateRows: "1fr auto" }}
+    >
+      <div className="text-gray-400/70 space-y-3 mb-4">
         {links.map((l) => (
           <Link
             href={l.href}
             key={l.href}
             className={
-              "flex items-center px-8 py-3 hover:bg-mainDark rounded-md " +
+              "flex items-center text-lg px-4 py-2 border-l-2 border-transparent hover:border-gray-600 " +
               (pathname === l.href
-                ? "bg-mainDark border border-gray-500/50"
+                ? "!border-gray-600 text-gray-400 bg-gray-600/10"
                 : "")
             }
           >
-            <span className="material-symbols-outlined mr-1">{l.icon}</span>{" "}
+            <span className="material-symbols-outlined mr-4 !text-xl">
+              {l.icon}
+            </span>
             {l.text}
           </Link>
         ))}

@@ -1,6 +1,9 @@
 "use client";
 import React, { useState } from "react";
 
+// we are giving a fixed height to the input and btn to make it a box
+const barInnerHeightCls = "h-7";
+
 export default function SearchBar() {
   const [focused, setFocused] = useState(false);
   return (
@@ -12,11 +15,17 @@ export default function SearchBar() {
     >
       <input
         type="text"
-        className="h-8 flex-1 !bg-transparent border-none"
+        className={"flex-1 !bg-transparent border-none " + barInnerHeightCls}
+        placeholder="Search anything...."
         onFocus={(e) => setFocused(true)}
         onBlur={(e) => setFocused(false)}
       />
-      <button className="w-8 h-8 flex items-center justify-center bg-mainAccent rounded-full">
+      <button
+        className={
+          "w-7 flex items-center justify-center bg-mainAccent rounded-full " +
+          barInnerHeightCls
+        }
+      >
         <span className="material-symbols-outlined">search</span>
       </button>
     </div>
