@@ -1,5 +1,6 @@
 import "./globals.css";
 import { globalFont } from "./fonts";
+import StoreProvider from "./util/StoreProvider";
 
 export const metadata = {
   title: "Tagfolio | A Modern Multimedia Analyzer",
@@ -9,7 +10,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={globalFont.className}>
-      <body>{children}</body>
+      <body>
+        <StoreProvider>{children}</StoreProvider>
+      </body>
     </html>
   );
 }

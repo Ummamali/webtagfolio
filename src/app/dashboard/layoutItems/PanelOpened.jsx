@@ -6,9 +6,12 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Logo from "/public/logo/white.png";
+import { useDispatch } from "react-redux";
+import { panelClosed } from "../../../store/ApplicationSlice";
 
 export default function PanelOpened({ closePanel }) {
   const pathname = usePathname();
+  const dispatch = useDispatch();
   return (
     <div
       className="font-light backdrop-blur-xl backdrop-brightness-60 h-full py-7 px-4"
@@ -22,7 +25,7 @@ export default function PanelOpened({ closePanel }) {
         <Image src={Logo} width={120} className="opacity-80" />
         <button
           className="p-0.5 rounded-md bg-gray-900 text-gray-300/70 hover:text-white flex items-center justify-center"
-          onClick={closePanel}
+          onClick={() => dispatch(panelClosed())}
         >
           <span className="material-symbols-outlined">chevron_left</span>
         </button>

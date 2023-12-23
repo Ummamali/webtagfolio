@@ -3,14 +3,17 @@ import React from "react";
 import { links } from "./SidePanel";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { panelOpened } from "../../../store/ApplicationSlice";
 
 export default function SidePanelClosed({ openPanel }) {
   const pathname = usePathname();
+  const dispatch = useDispatch();
   return (
     <div className="font-light backdrop-blur-xl backdrop-brightness-60 h-full py-7 px-4 flex flex-col items-center">
       <button
         className="flex items-center justify-center p-2 bg-gray-900 rounded-lg shadow-lg text-gray-200/60 hover:text-white"
-        onClick={openPanel}
+        onClick={() => dispatch(panelOpened())}
       >
         <span className="material-symbols-outlined ">menu</span>
       </button>

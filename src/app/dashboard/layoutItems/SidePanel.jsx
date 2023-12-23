@@ -7,6 +7,7 @@ import SearchBar from "./SearchBar";
 import UserBox from "./UsersBox";
 import PanelOpened from "./PanelOpened";
 import PanelClosed from "./PanelClosed";
+import { useSelector } from "react-redux";
 
 // CONFIG >>> following are the links to be shown in the panel
 export const links = [
@@ -16,10 +17,6 @@ export const links = [
 ];
 
 export default function SidePanel() {
-  const [panelOpened, setPanelOpened] = useState(false);
-  return panelOpened ? (
-    <PanelOpened closePanel={() => setPanelOpened(false)} />
-  ) : (
-    <PanelClosed openPanel={() => setPanelOpened(true)} />
-  );
+  const panelOpened = useSelector((state) => state.app.panelOpened);
+  return panelOpened ? <PanelOpened /> : <PanelClosed />;
 }
