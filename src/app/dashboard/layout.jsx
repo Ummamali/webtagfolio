@@ -1,30 +1,29 @@
-import SidePanel from "../util/SidePanel";
-import TopHeader from "../util/TopHeader";
-import UsersBox from "../util/UsersBox";
+import SidePanel from "./layoutItems/SidePanel";
+
+import "./dashboard.css";
+
+const mainSectionRadius = "1.2rem";
 
 export default function DashboardLayout({
   children, // will be a page or nested layout
 }) {
   return (
     <div
-      className="h-screen bg-mainDark py-4 px-6"
-      style={{ display: "grid", gridTemplateRows: "auto 1fr" }}
+      className="viewport h-screen"
+      style={{ display: "grid", gridTemplateColumns: "auto 1fr" }}
     >
-      <TopHeader />
-      <div className="flex">
+      <SidePanel />
+      <main className="font-light backdrop-blur-xl backdrop-brightness-60">
         <div
-          className="w-64"
+          className="overflow-hidden h-full"
           style={{
-            gridTemplateRows: "1fr auto",
-            display: "grid",
-            gap: "1.5rem",
+            borderTopLeftRadius: mainSectionRadius,
+            borderBottomLeftRadius: mainSectionRadius,
           }}
         >
-          <SidePanel />
-          <UsersBox />
+          {children}
         </div>
-        <div className="p-4">{children}</div>
-      </div>
+      </main>
     </div>
   );
 }

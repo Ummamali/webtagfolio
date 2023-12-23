@@ -21,6 +21,9 @@ module.exports = {
       roboto: ["var(--font-roboto)"],
       lora: ["var(--font-lora)"],
     },
+    backdropBrightness: {
+      60: ".6",
+    },
   },
   plugins: [],
 };

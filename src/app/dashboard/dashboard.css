@@ -1,0 +1,5 @@
+/* This file contains all configs and stylings for dashbaords */
+
+.viewport {
+  background: url("/bg/light.jpg") no-repeat left center/cover;
+}

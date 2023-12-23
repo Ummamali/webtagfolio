@@ -1,12 +1,16 @@
-@import "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined";
+/* @import "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"; */
+
+/* Variable google icons */
+@import "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200";
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* for material symbols  */
+
 .material-symbols-outlined {
-  font-size: inherit;
+  font-variation-settings: "FILL" 0, "wght" 100, "GRAD" 0, "opsz" 40;
 }
 
 /* Following is the theme for this application */
