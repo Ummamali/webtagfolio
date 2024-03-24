@@ -8,12 +8,15 @@ import { inputCls, labelCls } from "../login/formConfig.js";
 import useValidator, {
   getDefaultResetValidator,
   getDefaultValidator,
+  syncValidateAll,
 } from "../../hooks/useValidator";
 import RefFormGroup from "../util/RefFormGroup";
 import Link from "next/link";
+import { simpleBackend } from "../../../backend";
 
 export default function () {
   const [err, setErr] = useState(false);
+  const usernameRef = useRef();
   const emailRef = useRef();
   const passRef = useRef();
   const conpassRef = useRef();
@@ -31,23 +34,29 @@ export default function () {
       return null;
     }
 
-    const data = {
-      username: nameRef.current.value,
+    const reqObj = {
+      username: usernameRef.current.value,
+      email: emailRef.current.value,
       password: passRef.current.value,
+      confirmPassword: conpassRef.current.value,
     };
-    fetch("http://127.0.0.1:5500/signup", {
-      method: "POST",
-      headers: {
-        "CONTENT-TYPE": "application/json",
-      },
-      body: JSON.stringify(data),
-    }).then((res) =>
-      res.json().then((resObj) => {
-        if (resObj.acknowledged) {
-          router.push("/login");
-        }
-      })
-    );
+
+    if (syncValidateAll(reqObj, validate)) {
+      fetch(simpleBackend.urls.signup, {
+        method: "POST",
+        headers: {
+          "CONTENT-TYPE": "application/json",
+        },
+        body: JSON.stringify(reqObj),
+      }).then((res) =>
+        res.json().then((resObj) => {
+          console.log(resObj);
+          // if (resObj.ack) {
+          //   router.push("/login");
+          // }
+        })
+      );
+    }
   }
 
   return (
@@ -85,6 +94,19 @@ export default function () {
             </div>
 
             <form className="space-y-5 mb-2" onSubmit={check}>
+              <RefFormGroup
+                vData={validityStatus.username}
+                id="username"
+                label="Username"
+                labelCls={labelCls}
+                type="text"
+                inputCls={inputCls}
+                placeholder="Username here..."
+                autoComplete="off"
+                validate={getDefaultValidator(validate)}
+                resetValidity={getDefaultResetValidator(dispatchValidity)}
+                ref={usernameRef}
+              />
               <RefFormGroup
                 vData={validityStatus.email}
                 id="email"

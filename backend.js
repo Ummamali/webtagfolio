@@ -7,3 +7,11 @@ export const contentServer = {
     users: `${contentsAddress}/users/`,
   },
 };
+
+const simpleBackendServer = "http://127.0.0.1:5500/";
+export const simpleBackend = {
+  urls: {
+    root: simpleBackendServer,
+    signup: `${simpleBackendServer}/user/signup`,
+  },
+};
