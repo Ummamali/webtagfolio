@@ -52,6 +52,7 @@ export default function LogIn() {
           const resObj = await res.json();
           const token = `Bearer ${resObj.token}`;
           localStorage.setItem("Authorization", token);
+          localStorage.setItem("userId", resObj.userId);
           router.push("/dashboard");
         } else {
           throw new Error("Cannot log you in now");
