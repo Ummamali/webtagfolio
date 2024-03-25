@@ -8,11 +8,12 @@ export const contentServer = {
   },
 };
 
-const simpleBackendServer = "http://127.0.0.1:5500/";
+const simpleBackendServerURL = "http://127.0.0.1:5500";
 export const simpleBackend = {
   urls: {
-    root: simpleBackendServer,
-    signup: `${simpleBackendServer}/user/signup`,
-    signUpVerify: `${simpleBackendServer}/user/signup/verify`,
+    root: simpleBackendServerURL,
+    signup: `${simpleBackendServerURL}/user/signup`,
+    signUpVerify: `${simpleBackendServerURL}/user/signup/verify`,
+    login: `${simpleBackendServerURL}/user/login`,
   },
 };

@@ -36,11 +36,6 @@ export default function () {
       return null;
     }
 
-    if (!acceptRef.current.checked) {
-      setErr("Pleaase accept our terms and Policies");
-      return null;
-    }
-
     const currentValues = {
       username: usernameRef.current.value,
       email: emailRef.current.value,
@@ -51,6 +46,10 @@ export default function () {
     if (syncValidateAll(currentValues, validate)) {
       // Your can use this template pattern of connecting to the backend
       async function requestBackend() {
+        if (!acceptRef.current.checked) {
+          console.log("err");
+          throw new Error("Please accept terms and policies");
+        }
         const { confirmPassword, ...reqObj } = currentValues;
         const res = await fetch(simpleBackend.urls.signup, {
           method: "POST",
@@ -62,9 +61,11 @@ export default function () {
 
         if (res.ok) {
           const resObj = await res.json();
-          console.log(resObj);
+          if (resObj.ack) {
+            router.push(`/signup/verify?email=${reqObj.email}`);
+          }
         } else {
-          throw Error();
+          throw new Error("Registeration Failed. Please try again later");
         }
       }
 
@@ -72,7 +73,7 @@ export default function () {
       setRequestLoading(true);
       requestBackend().catch((err) => {
         setRequestLoading(false);
-        setErr("Account creation request failed");
+        setErr(err.message);
       });
     }
   }

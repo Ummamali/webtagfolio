@@ -7,10 +7,12 @@ import useValidator, {
   syncValidateAll,
 } from "../../../hooks/useValidator";
 import { simpleBackend } from "../../../../backend";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 
 const identityList = { code: "Please provide a 6 digit code" };
-const validatorPredicates = { code: (str) => /^\d{6}$/.test(str) };
+const validatorPredicates = {
+  code: (str) => ({ isValid: /^\d{6}$/.test(str) }),
+};
 export const labelCls = "block text-sm text-gray-400";
 
 export const inputCls = {
@@ -20,7 +22,9 @@ export const inputCls = {
 export default function verifyregisteration() {
   const codeRef = useRef();
   const [requestLoading, setRequestLoading] = useState(false);
+  const [err, setErr] = useState("");
   const searchParams = useSearchParams();
+  const router = useRouter();
   const [validityStatus, dispatchValidity, validate] = useValidator(
     identityList,
     validatorPredicates
@@ -32,7 +36,7 @@ export default function verifyregisteration() {
     if (syncValidateAll(currentValues, validate)) {
       async function requestBackend() {
         const reqObj = {
-          code: currentValues.code,
+          verify: currentValues.code,
           email: searchParams.get("email"),
         };
         const res = await fetch(simpleBackend.urls.signUpVerify, {
@@ -45,16 +49,30 @@ export default function verifyregisteration() {
 
         if (res.ok) {
           const resObj = await res.json();
-          console.log(resObj);
+          if (resObj.ack) {
+            router.push("/user/login");
+          }
         } else {
-          throw Error();
+          throw new Error("Unable to verify your account");
         }
       }
+
+      // sending the request
+      setRequestLoading(true);
+      requestBackend().catch((err) => {
+        setRequestLoading(false);
+        setErr(err.message);
+      });
     }
   }
   return (
     <div className="h-screen bg-boardingDark">
       <div className="mb-8 text-center px-4 py-10">
+        {err && (
+          <p className="bg-red-800/20 text-red-600 text-white/80 py-2 px-8 rounded-sm text-sm text-center mb-4">
+            {err}
+          </p>
+        )}
         <h1 className="text-4xl text-white/60 mb-3">Verify Your Signup</h1>
         <small className="block text-white/50">
           Verify your registeration request. Register to start managing your

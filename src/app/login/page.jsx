@@ -17,12 +17,14 @@ import {
   inputCls,
 } from "./formConfig.js";
 import RefFormGroup from "../util/RefFormGroup";
+import { simpleBackend } from "../../../backend";
 
 export default function LogIn() {
+  const [err, setErr] = useState(false);
+  const [requestLoading, setRequestLoading] = useState(false);
   const emailRef = useRef();
   const passRef = useRef();
   const router = useRouter();
-  const [err, setErr] = useState(false);
   const [validityStatus, dispatchValidity, validate] = useValidator(
     identityList,
     validatorPredicates
@@ -37,21 +39,31 @@ export default function LogIn() {
     };
 
     if (syncValidateAll(currentValues, validate)) {
-      fetch("http://127.0.0.1:5500/login", {
-        method: "POST",
-        headers: {
-          "CONTENT-TYPE": "application/json",
-        },
-        body: JSON.stringify(data),
-      }).then((res) =>
-        res.json().then((resObj) => {
-          if (resObj.isValid) {
-            router.push("/upload/image");
-          } else {
-            setErr(true);
-          }
-        })
-      );
+      async function requestBackend() {
+        const reqObj = { ...currentValues };
+        const res = await fetch(simpleBackend.urls.login, {
+          method: "POST",
+          headers: {
+            "CONTENT-TYPE": "application/json",
+          },
+          body: JSON.stringify(reqObj),
+        });
+        if (res.ok) {
+          const resObj = await res.json();
+          const token = `Bearer ${resObj.token}`;
+          localStorage.setItem("Authorization", token);
+          router.push("/dashboard");
+        } else {
+          throw new Error("Cannot log you in now");
+        }
+      }
+
+      // sending the request
+      setRequestLoading(true);
+      requestBackend().catch((err) => {
+        setRequestLoading(false);
+        setErr(err.message);
+      });
     }
   }
 
@@ -78,7 +90,7 @@ export default function LogIn() {
         <div className="max-w-[450px] mx-auto mt-28">
           {err && (
             <p className="bg-red-800 text-white/80 py-2 px-8 rounded-sm text-sm text-center mb-4">
-              Error: Invalid Credentials!
+              {err}
             </p>
           )}
           <div className="mb-8">
@@ -125,8 +137,12 @@ export default function LogIn() {
               resetValidity={getDefaultResetValidator(dispatchValidity)}
               ref={passRef}
             />
-            <button type="submit" className="btn-mainAccent w-full shadow-lg">
-              Login
+            <button
+              type="submit"
+              className="btn-mainAccent w-full shadow-lg"
+              disabled={requestLoading}
+            >
+              {requestLoading ? "Loading..." : "Log In"}
             </button>
           </form>
           <p className="text-center text-gray-400 mt-2 font-light">

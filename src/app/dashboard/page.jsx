@@ -1,10 +1,9 @@
 import React from "react";
-import Showcase from "../util/Showcase/Showcase";
 
 export default function page() {
   return (
-    <div className="h-full bg-white">
-      <Showcase />
+    <div>
+      <h2 className="text-gray-500">Dashboard</h2>
     </div>
   );
 }
