@@ -16,11 +16,13 @@ import { simpleBackend } from "../../../backend";
 
 export default function () {
   const [err, setErr] = useState(false);
+  const [requestLoading, setRequestLoading] = useState(false);
   const usernameRef = useRef();
   const emailRef = useRef();
   const passRef = useRef();
   const conpassRef = useRef();
   const router = useRouter();
+  const acceptRef = useRef();
   const [validityStatus, dispatchValidity, validate] = useValidator(
     identityList,
     validatorPredicates
@@ -34,28 +36,44 @@ export default function () {
       return null;
     }
 
-    const reqObj = {
+    if (!acceptRef.current.checked) {
+      setErr("Pleaase accept our terms and Policies");
+      return null;
+    }
+
+    const currentValues = {
       username: usernameRef.current.value,
       email: emailRef.current.value,
       password: passRef.current.value,
       confirmPassword: conpassRef.current.value,
     };
 
-    if (syncValidateAll(reqObj, validate)) {
-      fetch(simpleBackend.urls.signup, {
-        method: "POST",
-        headers: {
-          "CONTENT-TYPE": "application/json",
-        },
-        body: JSON.stringify(reqObj),
-      }).then((res) =>
-        res.json().then((resObj) => {
+    if (syncValidateAll(currentValues, validate)) {
+      // Your can use this template pattern of connecting to the backend
+      async function requestBackend() {
+        const { confirmPassword, ...reqObj } = currentValues;
+        const res = await fetch(simpleBackend.urls.signup, {
+          method: "POST",
+          headers: {
+            "CONTENT-TYPE": "application/json",
+          },
+          body: JSON.stringify(reqObj),
+        });
+
+        if (res.ok) {
+          const resObj = await res.json();
           console.log(resObj);
-          // if (resObj.ack) {
-          //   router.push("/login");
-          // }
-        })
-      );
+        } else {
+          throw Error();
+        }
+      }
+
+      // sending the request
+      setRequestLoading(true);
+      requestBackend().catch((err) => {
+        setRequestLoading(false);
+        setErr("Account creation request failed");
+      });
     }
   }
 
@@ -63,7 +81,7 @@ export default function () {
     <div className="h-screen bg-boardingDark flex">
       <div
         className={
-          "h-full w-7/12 signimg hidden md:flex items-center justify-center"
+          "h-full w-7/12 signimg flex items-center justify-center md:hidden"
         }
       >
         <div
@@ -78,8 +96,8 @@ export default function () {
           />
         </div>
       </div>
-      <div className="flex-1">
-        <div className="h-full px-24 pt-20">
+      <div className="flex-1 overflow-y-auto">
+        <div className="h-full px-24 lg:px-8 pt-20 pb-4">
           <div className="">
             {err && (
               <p className="bg-red-800 text-white/80 py-2 px-8 rounded-sm text-sm text-center mb-4">
@@ -147,7 +165,13 @@ export default function () {
                 ref={conpassRef}
               />
               <div className="flex items-center space-x-2 px-2">
-                <input type="checkbox" name="terms" id="terms" className="" />
+                <input
+                  type="checkbox"
+                  name="terms"
+                  id="terms"
+                  className=""
+                  ref={acceptRef}
+                />
                 <label htmlFor="terms" className="text-gray-500/80 text-sm">
                   I have read and agree to the terms and conditions for usign
                   this application
@@ -155,9 +179,10 @@ export default function () {
               </div>
               <button
                 type="submit"
-                className="btn-mainAccent w-full shadow-lg py-2"
+                className="btn-mainAccent w-full shadow-lg py-2 disabled:opacity-60"
+                disabled={requestLoading}
               >
-                Sign Up
+                {requestLoading ? "Please wait...." : "Sign Up"}
               </button>
             </form>
             <p className="text-gray-500 text-center">

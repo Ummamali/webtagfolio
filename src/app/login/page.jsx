@@ -64,7 +64,7 @@ export default function LogIn() {
       >
         <div
           className="w-1/2 h-1/2 relative"
-          style={{ mixBlendMode: "luminosity" }}
+          style={{ mixBlendMode: "darken" }}
         >
           <Image
             src={"/logo.png"}

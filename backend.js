@@ -13,5 +13,6 @@ export const simpleBackend = {
   urls: {
     root: simpleBackendServer,
     signup: `${simpleBackendServer}/user/signup`,
+    signUpVerify: `${simpleBackendServer}/user/signup/verify`,
   },
 };

@@ -48,6 +48,15 @@ export default function useValidator(
    the validator will check if the predicate lies in async array to use then and catch accordingly. Make sure to make that function async
    */
 
+  /*
+    Signature:
+      const [validityStatus, dispatchValidity, validate] = useValidator(
+    identityList,
+    validatorPredicates
+  );
+  
+  */
+
   // Initial value will be calculated only for the first time
   const initialValue = useMemo(() => {
     const answer = {};
