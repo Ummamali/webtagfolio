@@ -8,7 +8,7 @@ const imageSize = { width: 50, height: 50 };
 const controlButtons = [
   { icon: "settings", route: "/settings" },
   { icon: "manage_accounts", route: "/userSettings" },
-  { icon: "groups", route: "/organizations" },
+  { icon: "groups", route: "/dash/organizations" },
 ];
 
 export default function UsersBox() {

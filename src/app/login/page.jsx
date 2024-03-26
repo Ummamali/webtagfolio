@@ -53,9 +53,9 @@ export default function LogIn() {
           const token = `Bearer ${resObj.token}`;
           localStorage.setItem("Authorization", token);
           localStorage.setItem("userId", resObj.userId);
-          router.push("/dashboard");
+          router.push("/dash");
         } else {
-          throw new Error("Cannot log you in now");
+          throw new Error("Unable to Login");
         }
       }
 
@@ -90,7 +90,7 @@ export default function LogIn() {
       <div className="flex-1 px-8">
         <div className="max-w-[450px] mx-auto mt-28">
           {err && (
-            <p className="bg-red-800 text-white/80 py-2 px-8 rounded-sm text-sm text-center mb-4">
+            <p className="bg-red-800/50 text-white/60 py-2 px-8 rounded-sm text-sm text-center mb-4">
               {err}
             </p>
           )}

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { userIdentified } from "../../store/UserSlice";
 import FlashMessage from "../util/FlashMessage";
+import { simpleBackend } from "../../../backend";
 
 export default function DashboardLayout({
   children, // will be a page or nested layout
@@ -15,15 +16,29 @@ export default function DashboardLayout({
   const dispatch = useDispatch();
   const [cover, setCover] = useState(true);
   useEffect(() => {
-    const token = localStorage.getItem("Authorization");
-    const userId = localStorage.getItem("userId");
-    if (!token) {
-      router.push("/login");
-    } else {
-      dispatch(userIdentified({ token, userId }));
-      setCover(false);
+    async function identifyUser() {
+      const token = localStorage.getItem("Authorization");
+      const userId = localStorage.getItem("userId");
+      if (!token || !userId) {
+        router.push("/login");
+        return null;
+      }
+      const res = await fetch(simpleBackend.urls.verifyToken, {
+        method: "POST",
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (res.ok) {
+        dispatch(userIdentified({ token, userId }));
+        setCover(false);
+      } else {
+        router.push("/login");
+      }
     }
+    identifyUser();
   }, []);
+  // Not rendering anything as long as user is properly identified, cover will become false upon identification
   if (cover) {
     return null;
   }
