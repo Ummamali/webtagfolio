@@ -72,7 +72,7 @@ export default function LogIn() {
     <div className="h-screen bg-boardingDark flex">
       <div
         className={
-          "hidden w-7/12 h-full loginimg md:flex items-center justify-center"
+          "w-7/12 h-full loginimg flex items-center justify-center lg:w-5/12 md:hidden"
         }
       >
         <div

@@ -6,6 +6,7 @@ import UsersBox from "./layoutItems/UsersBox";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { userIdentified } from "../../store/UserSlice";
+import FlashMessage from "../util/FlashMessage";
 
 export default function DashboardLayout({
   children, // will be a page or nested layout
@@ -32,9 +33,8 @@ export default function DashboardLayout({
       style={{ display: "grid", gridTemplateRows: "auto 1fr" }}
     >
       <TopHeader />
-      <div className="flex">
+      <div style={{ display: "grid", gridTemplateColumns: "16rem auto" }}>
         <div
-          className="w-64"
           style={{
             gridTemplateRows: "1fr auto",
             display: "grid",
@@ -44,8 +44,9 @@ export default function DashboardLayout({
           <SidePanel />
           <UsersBox />
         </div>
-        <div className="p-4">{children}</div>
+        <div className="px-10">{children}</div>
       </div>
+      <FlashMessage />
     </div>
   );
 }
