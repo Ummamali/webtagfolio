@@ -16,5 +16,6 @@ export const simpleBackend = {
     signUpVerify: `${simpleBackendServerURL}/user/signup/verify`,
     login: `${simpleBackendServerURL}/user/login`,
     verifyToken: `${simpleBackendServerURL}/user/verifyToken`,
+    allOrgs: `${simpleBackendServerURL}/user/organization/all`,
   },
 };

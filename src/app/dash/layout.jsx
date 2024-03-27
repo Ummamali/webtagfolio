@@ -36,7 +36,7 @@ export default function DashboardLayout({
         router.push("/login");
       }
     }
-    identifyUser();
+    identifyUser().catch((err) => router.push("/login"));
   }, []);
   // Not rendering anything as long as user is properly identified, cover will become false upon identification
   if (cover) {

@@ -63,7 +63,8 @@ export default function LogIn() {
       setRequestLoading(true);
       requestBackend().catch((err) => {
         setRequestLoading(false);
-        setErr(err.message);
+        setErr("Unable to Log In");
+        console.log(err.message);
       });
     }
   }

@@ -3,21 +3,14 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import DeleteOrgModel from "./DeleteOrgModel";
+import { useSelector } from "react-redux";
 
 export default function OrganizationList() {
   const searchParams = useSearchParams();
   // dummy data for now
-  const [ownedOrgs, setOwnedOrgs] = useState([
-    { _id: "1827319831", name: "Org 1", code: "166554" },
-    { _id: "1827319831", name: "Org 1" },
-  ]);
-  // dummy data for now
-  const [joinedOrgs, setJoinedOrgs] = useState([
-    { _id: "1827319831", name: "Org 1", code: "166554" },
-    { _id: "1827319831", name: "Org 1", code: "166554" },
-    { _id: "1827319831", name: "Org 1", code: "166554" },
-    { _id: "1827319831", name: "Org 1", code: "166554" },
-  ]);
+  const orgData = useSelector((state) => state.org.data);
+  const ownedOrgs = orgData.owned;
+  const joinedOrgs = orgData.joined;
 
   return (
     <div className="mt-7 space-y-8 w-full">
