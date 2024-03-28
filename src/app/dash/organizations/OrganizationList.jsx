@@ -9,8 +9,8 @@ export default function OrganizationList() {
   const searchParams = useSearchParams();
   // dummy data for now
   const orgData = useSelector((state) => state.org.data);
-  const ownedOrgs = orgData.owned;
-  const joinedOrgs = orgData.joined;
+  const ownedOrgs = orgData.ownedOrganizations;
+  const joinedOrgs = orgData.joinedOrganizations;
 
   return (
     <div className="mt-7 space-y-8 w-full">
