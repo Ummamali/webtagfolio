@@ -8,7 +8,9 @@ export const contentServer = {
   },
 };
 
+// Simple backend
 const simpleBackendServerURL = "http://127.0.0.1:5500";
+
 export const simpleBackend = {
   urls: {
     root: simpleBackendServerURL,
@@ -20,5 +22,13 @@ export const simpleBackend = {
     createOrg: `${simpleBackendServerURL}/user/organization`,
     deleteOrg: `${simpleBackendServerURL}/user/organization/delete`,
     orgRequestCode: `${simpleBackendServerURL}/user/organization/code`,
+  },
+};
+
+// Tagging engine
+const taggingEngineServerURL = "http://127.0.0.1:5501";
+export const taggingEngine = {
+  urls: {
+    tagImage: `${taggingEngineServerURL}/image/tags`,
   },
 };
