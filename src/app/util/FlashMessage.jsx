@@ -1,17 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { flashHidden } from "../../store/ApplicationSlice";
 
 const typeClasses = {
   SUCCESS: { card: "bg-green-500", text: "text-black/80" },
-  FAILURE: { card: "bg-red-500", text: "text-black/80" },
+  FAILURE: { card: "bg-red-500", text: "text-white/80" },
   INFO: { card: "bg-cyan-500", text: "text-black/80" },
 };
 
-const flashDuration = 2000;
+const flashDuration = 4000;
 
 export default function FlashMessage() {
   const flashState = useSelector((state) => state.app.flash);
+  const timeoutRef = useRef({ timeout: null });
   const dispatchStore = useDispatch();
 
   const visibilityClasses = flashState.showing
@@ -19,10 +20,13 @@ export default function FlashMessage() {
     : "!right-0 translate-x-full";
 
   useEffect(() => {
-    setTimeout(() => {
+    if (timeoutRef.current.timeout) {
+      clearTimeout(timeoutRef.current.timeout);
+    }
+    timeoutRef.current.timeout = setTimeout(() => {
       dispatchStore(flashHidden());
     }, flashDuration);
-  }, [flashState.showing]);
+  }, [flashState]);
 
   return (
     <div
@@ -37,7 +41,9 @@ export default function FlashMessage() {
         {flashState.msg}
       </p>
       <button
-        className="absolute top-1 right-1"
+        className={
+          "absolute top-1 right-1 " + typeClasses[flashState.type]["text"]
+        }
         onClick={() => dispatchStore(flashHidden())}
       >
         <span class="material-symbols-outlined">close</span>

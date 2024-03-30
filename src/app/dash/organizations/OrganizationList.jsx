@@ -3,14 +3,46 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import React, { useState } from "react";
 import DeleteOrgModel from "./DeleteOrgModel";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { simpleBackend } from "../../../../backend";
+import { orgActions } from "../../../store/OrgSlice";
+import { flashedError, flashedSuccess } from "../../../store/ApplicationSlice";
 
 export default function OrganizationList() {
   const searchParams = useSearchParams();
-  // dummy data for now
+  const token = useSelector((state) => state.user.token);
   const orgData = useSelector((state) => state.org.data);
+  const dispatchStore = useDispatch();
   const ownedOrgs = orgData.ownedOrganizations;
   const joinedOrgs = orgData.joinedOrganizations;
+
+  function requestCode(name) {
+    async function contactServer() {
+      const res = await fetch(simpleBackend.urls.orgRequestCode, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token,
+        },
+        body: JSON.stringify({ name: name }),
+      });
+      if (res.ok) {
+        const resObj = await res.json();
+        dispatchStore(
+          orgActions.codeGenerated({
+            name: name,
+            joinCode: resObj.joinCode,
+          })
+        );
+        dispatchStore(
+          flashedSuccess("Organization join code successfully generated")
+        );
+      }
+    }
+    contactServer().catch((err) =>
+      dispatchStore(flashedError("Failed to generated code"))
+    );
+  }
 
   return (
     <div className="mt-7 space-y-8 w-full">
@@ -28,14 +60,20 @@ export default function OrganizationList() {
             </p>
           ) : (
             ownedOrgs.map((o) => (
-              <li className="flex items-center py-3 text-sm">
+              <li className="flex items-center py-3 text-sm" key={o["_id"]}>
                 <p className="text-white/60 mr-auto">{o.name}</p>
-                {o.code ? (
-                  <p className="text-white/60">
-                    <small>{`Join Code: ${o.code}`}</small>
+                {o.joinCode ? (
+                  <p className="text-white/60 italic font-light">
+                    <small>
+                      Join Code:{" "}
+                      <span className="font-normal">{o.joinCode}</span>
+                    </small>
                   </p>
                 ) : (
-                  <button className="span text-green-500">
+                  <button
+                    className="span text-green-500"
+                    onClick={() => requestCode(o.name)}
+                  >
                     <small>Request Code</small>
                   </button>
                 )}
@@ -64,7 +102,10 @@ export default function OrganizationList() {
             </p>
           ) : (
             joinedOrgs.map((o) => (
-              <li className="flex items-center justify-between py-3 text-sm">
+              <li
+                className="flex items-center justify-between py-3 text-sm"
+                key={o["_id"]}
+              >
                 <p className="text-white/60">{o.name}</p>
                 <button className="span text-red-500/80">
                   <small>Leave</small>

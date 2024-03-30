@@ -6,12 +6,18 @@ import useValidator, {
   syncValidateAll,
 } from "../../../hooks/useValidator";
 import RefFormGroup from "../../util/RefFormGroup";
-import { useDispatch } from "react-redux";
-import { flashed } from "../../../store/ApplicationSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  flashed,
+  flashedError,
+  flashedSuccess,
+} from "../../../store/ApplicationSlice";
 import Model from "../../util/Model";
 import { useRouter } from "next/navigation";
+import { simpleBackend } from "../../../../backend";
+import { orgActions } from "../../../store/OrgSlice";
 
-const identityList = { name: "Please provide a valid name" };
+const identityList = { name: "Name must be 5 or more characters long" };
 const validatorPredicates = { name: (str) => ({ isValid: str.length >= 5 }) };
 
 export const labelCls = "block text-sm text-gray-400";
@@ -23,6 +29,7 @@ export const inputCls = {
 export default function CreateOrganization() {
   const [requestLoading, setRequestLoading] = useState(false);
   const dispatchStore = useDispatch();
+  const token = useSelector((state) => state.user.token);
   const [err, setErr] = useState("");
   const nameRef = useRef();
   const [validityStatus, dispatchValidity, validate] = useValidator(
@@ -37,11 +44,39 @@ export default function CreateOrganization() {
 
   function submitForm(e) {
     e.preventDefault();
-    dispatchStore(flashed({ msg: "Button clicked", type: "FAILURE" }));
+
+    const currentValues = { name: nameRef.current.value };
+
+    if (syncValidateAll(currentValues, validate)) {
+      async function requestServer() {
+        const res = await fetch(simpleBackend.urls.createOrg, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify(currentValues),
+        });
+
+        if (res.ok) {
+          const resObj = await res.json();
+          dispatchStore(flashedSuccess("Organization Created!"));
+          dispatchStore(orgActions.orgCreated(resObj.created));
+          close();
+        } else {
+          throw new Error("Some error occured");
+        }
+      }
+      //  sending it
+      requestServer().catch((err) => {
+        console.log(err);
+        dispatchStore(flashedError("Unable to create organization"));
+      });
+    }
   }
   return (
     <Model close={close}>
-      <main className="relative shadow-lg max-w-lg bg-gray-800 p-8 rounded-sm mx-auto mt-10">
+      <main className="relative shadow-lg max-w-lg bg-lightDark p-8 rounded mx-auto mt-10">
         <button
           className="absolute top-4 right-4 ml-auto text-white/50"
           onClick={close}

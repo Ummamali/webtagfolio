@@ -14,10 +14,31 @@ export const appSlice = createSlice({
     flashHidden: (state) => {
       state.flash.showing = false;
     },
+    flashedError: (state, action) => {
+      state.flash.showing = true;
+      state.flash.msg = action.payload;
+      state.flash.type = "FAILURE";
+    },
+    flashedSuccess: (state, action) => {
+      state.flash.showing = true;
+      state.flash.msg = action.payload;
+      state.flash.type = "SUCCESS";
+    },
+    flashedInfo: (state, action) => {
+      state.flash.showing = true;
+      state.flash.msg = action.payload;
+      state.flash.type = "INFO";
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { flashed, flashHidden } = appSlice.actions;
+export const {
+  flashed,
+  flashHidden,
+  flashedError,
+  flashedSuccess,
+  flashedInfo,
+} = appSlice.actions;
 
 export default appSlice.reducer;

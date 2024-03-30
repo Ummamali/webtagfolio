@@ -46,7 +46,7 @@ export default function UploadImage() {
   }
 
   return (
-    <div className="bg-mainDarkBG min-h-screen w-screen px-4 py-6">
+    <div className="bg-mainDark min-h-screen w-screen px-4 py-6">
       <div className="mb-4">
         <h1 className="text-2xl text-gray-100/70">Upload an Image</h1>
         <small className="text-gray-100/50">

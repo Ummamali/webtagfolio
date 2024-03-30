@@ -7,6 +7,7 @@
 
   Following are the methods for These type of slices      
 */
+import { merge, mergeWith, isArray } from "lodash";
 
 // reducers
 export const asyncSliceReducers = {
@@ -31,6 +32,9 @@ export const asyncSliceReducers = {
   },
   failedLoading: (state) => {
     state.loadStatus = 3;
+  },
+  merged: (state, action) => {
+    merge(state, { data: action.payload });
   },
 };
 

@@ -17,5 +17,8 @@ export const simpleBackend = {
     login: `${simpleBackendServerURL}/user/login`,
     verifyToken: `${simpleBackendServerURL}/user/verifyToken`,
     allOrgs: `${simpleBackendServerURL}/user/organization/all`,
+    createOrg: `${simpleBackendServerURL}/user/organization`,
+    deleteOrg: `${simpleBackendServerURL}/user/organization/delete`,
+    orgRequestCode: `${simpleBackendServerURL}/user/organization/code`,
   },
 };
