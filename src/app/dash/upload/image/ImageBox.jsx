@@ -1,33 +1,66 @@
 import React, { useState } from "react";
 import ImagePreview from "./ImagePreview";
+import { taggingEngine } from "../../../../../backend";
+import { useDispatch, useSelector } from "react-redux";
+import { flashedError } from "../../../../store/ApplicationSlice";
+import TagBox from "./TagBox";
 
 export default function ImageBox({ file }) {
-  const [tags, setTags] = useState(null);
-  console.log(tags);
-  function uploaFile() {
-    // Create a FormData object to hold the files
-    const formData = new FormData();
+  const [selectedObjectTags, setSelectedObjectTags] = useState([]);
+  const [objectTags, setObjectTags] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [askMore, setAskMore] = useState(true);
 
-    // Append file to the FormData object
-    formData.append("files", file);
-    setTags("loading");
-    // Make a Fetch API request to send files to the server
-    fetch("http://127.0.0.1:5500/upload", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Upload successful:", data);
-        setTags(data.tags[file.name]);
-        // Handle the server's response if needed
-      })
-      .catch((error) => {
-        console.error("Error during upload:", error);
-      });
+  const token = useSelector((state) => state.user.token);
+  const dispatchStore = useDispatch();
+
+  function uploaFile() {
+    async function contactServer() {
+      const saveResObj = await taggingEngine.handlers.sendImagesToEngine(
+        [file],
+        token
+      );
+      const tagsResObj = await taggingEngine.handlers.askTags(
+        [file.name],
+        "_temp",
+        token
+      );
+      setObjectTags(tagsResObj[0].tags);
+      setIsLoading(false);
+    }
+
+    // Now we are actually deling with it
+    setIsLoading(true);
+    contactServer().catch((error) => {
+      dispatchStore(flashedError("Failed to analyze file"));
+      setIsLoading(false);
+    });
   }
 
-  const isLoading = tags === "loading";
+  function askMoreTags() {
+    async function contactServer() {
+      const tagsResObj = await taggingEngine.handlers.askTags(
+        [file.name],
+        "_temp",
+        token,
+        "DENSENET"
+      );
+      setObjectTags((prev) => [...prev, ...tagsResObj[0].tags]);
+      setIsLoading(false);
+      setAskMore(false);
+    }
+
+    // Now we are actually deling with it
+    setIsLoading(true);
+    contactServer().catch((error) => {
+      dispatchStore(flashedError("Failed to load more tags"));
+      setIsLoading(false);
+    });
+  }
+
+  function gotSelected(idx) {
+    setSelectedObjectTags((prev) => [...prev, idx]);
+  }
 
   return (
     <div
@@ -36,41 +69,48 @@ export default function ImageBox({ file }) {
         (isLoading ? "animate-pulse-fast" : "")
       }
     >
-      <ImagePreview file={file} size={{ height: "140px" }} />
+      <ImagePreview file={file} size={{ height: "130px" }} />
       <div className="flex-1 px-3">
         <div className="flex justify-between items-start mb-4">
           <div>
             <h2 className="text-gray-400">{file.name}</h2>
             <small className="text-gray-400/80 block -mt-1">{file.type}</small>
           </div>
-          <button
-            className={
-              "bg-mainAccent text-white py-2 px-4 rounded text-sm " +
-              (isLoading ? "bg-gray-400/20" : "")
-            }
-            onClick={uploaFile}
-            disabled={isLoading}
-          >
-            Analyze
-          </button>
+
+          {objectTags.length === 0 ? (
+            <button
+              className={
+                "border border-mainAccent text-mainAccent py-2 px-4 rounded text-sm disabled:opacity-30 "
+              }
+              onClick={uploaFile}
+              disabled={isLoading}
+            >
+              Analyze
+            </button>
+          ) : null}
         </div>
-        <div>
-          <div className="flex space-x-1">
-            {tags === null || tags === "loading" ? (
-              <p className="text-sm text-gray-500 italic">
-                No People to show yet
-              </p>
-            ) : (
-              tags.present.map((person) => (
-                <div
-                  key={person.personId}
-                  className="inline-block text-purple-400 text-sm border border-purple-400 py-1 px-4 rounded-md"
-                >
-                  <p>{person.name[0]}</p>
-                </div>
-              ))
-            )}
-          </div>
+        <div className="w-full overflow-x-hidden">
+          {objectTags.length > 0 ? (
+            <div>
+              <p className="text-gray-400 mb-2">Objects</p>
+              <div className="flex items-center flex-wrap">
+                {objectTags.map((o, i) =>
+                  selectedObjectTags.includes(i) ? null : (
+                    <TagBox text={o} idx={i} gotSelected={gotSelected} />
+                  )
+                )}
+                {askMore ? (
+                  <button
+                    className="text-gray-500 italic text-sm"
+                    onClick={askMoreTags}
+                    disabled={isLoading}
+                  >
+                    load more
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
         </div>
       </div>
     </div>

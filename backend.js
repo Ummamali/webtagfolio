@@ -28,7 +28,53 @@ export const simpleBackend = {
 // Tagging engine
 const taggingEngineServerURL = "http://127.0.0.1:5501";
 export const taggingEngine = {
+  handlers: { sendImagesToEngine: null, askTags: null },
   urls: {
-    tagImage: `${taggingEngineServerURL}/image/tags`,
+    tagImage: `${taggingEngineServerURL}/image/save`,
+    askTags: `${taggingEngineServerURL}/image/askTags`,
   },
 };
+
+// Image tagging handler
+async function sendImagesToEngine(imageFiles, token) {
+  // Create a FormData object to hold the files
+  const formData = new FormData();
+
+  // Append each selected file to the FormData object
+  for (let i = 0; i < imageFiles.length; i++) {
+    formData.append("files", imageFiles[i]);
+  }
+  // Make a Fetch API request to send files to the server
+  const res = await fetch(taggingEngine.urls.tagImage, {
+    method: "POST",
+    headers: { Authorization: token },
+    body: formData,
+  });
+  if (res.ok) {
+    const resObj = await res.json();
+    return resObj;
+  } else {
+    throw new Error();
+  }
+}
+
+// ask for tags suggestions of any already uploaded file
+async function askTags(filenames, bucketName, token, algo = "RESNET") {
+  const res = await fetch(taggingEngine.urls.askTags, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+    body: JSON.stringify({ filenames, bucketName, algo }),
+  });
+  if (res.ok) {
+    const resObj = await res.json();
+    return resObj;
+  } else {
+    throw new Error();
+  }
+}
+
+taggingEngine.handlers.sendImagesToEngine = sendImagesToEngine;
+taggingEngine.handlers.askTags = askTags;

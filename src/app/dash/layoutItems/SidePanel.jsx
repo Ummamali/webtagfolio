@@ -39,14 +39,14 @@ export default function SidePanel() {
       </div>
       <div className="flex items-center space-x-3 pt-4 border-t border-gray-500/30">
         <Link
-          href="/further/media"
+          href="/dash/upload/image"
           className="btn-mainAccent flex items-center"
         >
           <span className="material-symbols-outlined mr-1">add</span>
-          Media
+          Image
         </Link>
         <Link
-          href="/further/bucket"
+          href="/dash/upload/image"
           className="btn-mainAccent flex items-center"
         >
           <span className="material-symbols-outlined mr-1">add</span>

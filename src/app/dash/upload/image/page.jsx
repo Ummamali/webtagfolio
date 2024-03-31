@@ -48,8 +48,8 @@ export default function UploadImage() {
   return (
     <div className="bg-mainDark px-4 py-6">
       <div className="mb-4">
-        <h1 className="text-2xl text-gray-100/70">Upload an Image</h1>
-        <small className="text-gray-100/50">
+        <h1 className="text-3xl text-gray-100/70">Upload an Image</h1>
+        <small className="text-gray-100/30">
           Upload and save your important media assets to analyze them
           efficiently
         </small>
