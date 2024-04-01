@@ -3,7 +3,16 @@ import ImagePreview from "./ImagePreview";
 import { taggingEngine } from "../../../../../backend";
 import { useDispatch, useSelector } from "react-redux";
 import { flashedError } from "../../../../store/ApplicationSlice";
+import {
+  countOccurances,
+  countOccurrences,
+  findClosestColorName,
+  getPrimaryColors,
+} from "../../../../utilFuncs/utilFuncs";
 import TagBox from "./TagBox";
+
+import * as tf from "@tensorflow/tfjs";
+import * as cocoSsd from "@tensorflow-models/coco-ssd";
 
 export default function ImageBox({ file }) {
   const [selectedObjectTags, setSelectedObjectTags] = useState([]);
@@ -13,6 +22,15 @@ export default function ImageBox({ file }) {
 
   const token = useSelector((state) => state.user.token);
   const dispatchStore = useDispatch();
+
+  const detectObjects = async (imageFile) => {
+    const imageUrl = URL.createObjectURL(imageFile);
+    const imageElement = document.createElement("img");
+    imageElement.src = imageUrl;
+    const model = await cocoSsd.load();
+    const predictions = await model.detect(imageElement);
+    return predictions;
+  };
 
   function uploaFile() {
     async function contactServer() {
@@ -25,15 +43,36 @@ export default function ImageBox({ file }) {
         "_temp",
         token
       );
-      setObjectTags(tagsResObj[0].tags);
+      setObjectTags((prev) => [...prev, ...tagsResObj[0].tags]);
       setIsLoading(false);
     }
 
     // Now we are actually deling with it
     setIsLoading(true);
+    // Before we upload the file, we analyze it here
+    detectObjects(file)
+      .then((predictions) => {
+        const itemClasses = predictions.map((item) => item.class);
+        const uniqueItemClasses = [...new Set(itemClasses)];
+        const counts = countOccurrences(itemClasses);
+        const countTags = Object.keys(counts).map(
+          (cls) => `${cls} (count): ${counts[cls]}`
+        );
+        setObjectTags((prev) => [...prev, ...uniqueItemClasses, ...countTags]);
+      })
+      .catch(console.log);
     contactServer().catch((error) => {
       dispatchStore(flashedError("Failed to analyze file"));
       setIsLoading(false);
+    });
+    getPrimaryColors(file).then((clrs) => {
+      const colorNames = clrs.map((c) =>
+        findClosestColorName(c[0], c[1], c[2])
+      );
+      const uniqueColorNames = [...new Set(colorNames)].map(
+        (c) => `color: ${c}`
+      );
+      setObjectTags((prev) => [...prev, ...uniqueColorNames]);
     });
   }
 
@@ -63,13 +102,12 @@ export default function ImageBox({ file }) {
   }
 
   return (
-    <div
-      className={
-        "flex bg-white/5 p-3 rounded shadow " +
-        (isLoading ? "animate-pulse-fast" : "")
-      }
-    >
-      <ImagePreview file={file} size={{ height: "130px" }} />
+    <div className="flex bg-white/5 p-3 rounded shadow">
+      <ImagePreview
+        file={file}
+        size={{ height: "130px" }}
+        className={isLoading ? "animate-pulse-fast" : ""}
+      />
       <div className="flex-1 px-3">
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -96,7 +134,12 @@ export default function ImageBox({ file }) {
               <div className="flex items-center flex-wrap">
                 {objectTags.map((o, i) =>
                   selectedObjectTags.includes(i) ? null : (
-                    <TagBox text={o} idx={i} gotSelected={gotSelected} />
+                    <TagBox
+                      text={o}
+                      idx={i}
+                      gotSelected={gotSelected}
+                      key={o + i}
+                    />
                   )
                 )}
                 {askMore ? (

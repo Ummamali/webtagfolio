@@ -1,73 +1,92 @@
 "use client";
-import React, { useState } from "react";
-import ColorThief from "colorthief";
-import tinycolor from "tinycolor2";
-import { findClosestColorName } from "../../utilFuncs/utilFuncs";
+import React, { useState, useEffect } from "react";
+import * as tf from "@tensorflow/tfjs";
+import * as cocoSsd from "@tensorflow-models/coco-ssd";
 
-const ImageAccentColors = () => {
-  const [imageUrl, setImageUrl] = useState("");
-  const [accentColors, setAccentColors] = useState([]);
-  const [colorNames, setColorNames] = useState([]);
+const ImageAnalyzer = () => {
+  const [images, setImages] = useState([]);
+  const [predictions, setPredictions] = useState([]);
 
-  const handleImageUpload = (event) => {
-    const file = event.target.files[0];
-    const imageUrl = URL.createObjectURL(file);
-    setImageUrl(imageUrl);
+  useEffect(() => {
+    loadModel();
+  }, []);
 
-    const imageElement = document.createElement("img");
-    imageElement.src = imageUrl;
+  const loadModel = async () => {
+    try {
+      await tf.ready();
+      const model = await cocoSsd.load();
+      console.log("Model loaded successfully");
+    } catch (error) {
+      console.error("Error loading the model:", error);
+    }
+  };
 
-    const colorThief = new ColorThief();
+  const handleImageUpload = async (event) => {
+    const files = event.target.files;
+    const uploadedImages = [];
+    const uploadedPredictions = [];
 
-    // Load the image and get the dominant color palette
-    imageElement.onload = () => {
-      const colors = colorThief.getPalette(imageElement, 5);
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const imageUrl = URL.createObjectURL(file);
+      uploadedImages.push(imageUrl);
 
-      const colorNames = colors.map((c) => {
-        const tc = tinycolor({ r: c[0], g: c[1], b: c[2] });
-        if (tc.toName()) {
-          return tc.toName();
-        } else {
-          return findClosestColorName(c[0], c[1], c[2]);
-        }
-      });
+      const imageElement = document.createElement("img");
+      imageElement.src = imageUrl;
 
-      console.log(colorNames);
-      setAccentColors(colors);
-    };
+      try {
+        const predictions = await detectObjects(imageElement);
+        uploadedPredictions.push(predictions);
+      } catch (error) {
+        console.error("Error detecting objects:", error);
+        uploadedPredictions.push([]);
+      }
+    }
+
+    setImages(uploadedImages);
+    setPredictions(uploadedPredictions);
+  };
+
+  const detectObjects = async (imageElement) => {
+    const model = await cocoSsd.load();
+    const predictions = await model.detect(imageElement);
+    return predictions;
   };
 
   return (
     <div>
-      <input type="file" accept="image/*" onChange={handleImageUpload} />
-      {imageUrl && (
-        <div>
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        multiple
+      />
+      {images.map((imageUrl, index) => (
+        <div key={index}>
           <img
             src={imageUrl}
-            alt="Uploaded"
+            alt={`Uploaded ${index}`}
             style={{ maxWidth: "300px", maxHeight: "300px" }}
           />
           <div>
-            <h3>Accent Colors:</h3>
-            <ul>
-              {accentColors.map((color, index) => (
-                <li
-                  key={index}
-                  style={{
-                    backgroundColor: `rgb(${color.join(",")})`,
-                    padding: "5px",
-                  }}
-                >
-                  {`Color ${index + 1}`}{" "}
-                  {/* You can customize the label here */}
-                </li>
+            {predictions[index] &&
+              predictions[index].map((prediction, idx) => (
+                <div key={idx}>
+                  <p>
+                    {prediction.class} - {Math.round(prediction.score * 100)}%
+                  </p>
+                  <img
+                    src={imageUrl}
+                    alt={`Object ${idx}`}
+                    style={{ maxWidth: "100px", maxHeight: "100px" }}
+                  />
+                </div>
               ))}
-            </ul>
           </div>
         </div>
-      )}
+      ))}
     </div>
   );
 };
 
-export default ImageAccentColors;
+export default ImageAnalyzer;

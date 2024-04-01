@@ -46,7 +46,7 @@ export default function SidePanel() {
           Image
         </Link>
         <Link
-          href="/dash/upload/image"
+          href="/dash?createBucket=true"
           className="btn-mainAccent flex items-center"
         >
           <span className="material-symbols-outlined mr-1">add</span>

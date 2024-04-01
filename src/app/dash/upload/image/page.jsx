@@ -1,10 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ImageBox from "./ImageBox";
 
 export default function UploadImage() {
   const [imageFiles, setImageFiles] = useState([]);
-  console.log(imageFiles);
 
   // lists all the files when they are selected
   function listFiles(e) {
@@ -22,33 +21,20 @@ export default function UploadImage() {
   }
 
   function uploadAllFiles() {
-    // Create a FormData object to hold the files
-    const formData = new FormData();
-
-    // Append each selected file to the FormData object
-    for (let i = 0; i < imageFiles.length; i++) {
-      formData.append("files", imageFiles[i]);
-    }
-
-    // Make a Fetch API request to send files to the server
-    fetch("http://127.0.0.1:5500/upload", {
-      method: "POST",
-      body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Upload successful:", data);
-        // Handle the server's response if needed
-      })
-      .catch((error) => {
-        console.error("Error during upload:", error);
-      });
+    // we do it sometime later
   }
 
   return (
     <div className="bg-mainDark px-4 py-6">
       <div className="mb-4">
-        <h1 className="text-3xl text-gray-100/70">Upload an Image</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl text-gray-100/70">Upload an Image</h1>
+          <p
+            className={"text-green-500"}
+          >
+            <span className="material-symbols-outlined">check_circle</span>
+          </p>
+        </div>
         <small className="text-gray-100/30">
           Upload and save your important media assets to analyze them
           efficiently

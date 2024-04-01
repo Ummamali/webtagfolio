@@ -22,6 +22,8 @@ export const simpleBackend = {
     createOrg: `${simpleBackendServerURL}/user/organization`,
     deleteOrg: `${simpleBackendServerURL}/user/organization/delete`,
     orgRequestCode: `${simpleBackendServerURL}/user/organization/code`,
+    createBucket: `${simpleBackendServerURL}/media/bucket/create`,
+    allBuckets: `${simpleBackendServerURL}/media/bucket/all`,
   },
 };
 

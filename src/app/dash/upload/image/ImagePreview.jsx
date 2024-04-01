@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const ImagePreview = ({ file, size }) => {
+const ImagePreview = ({ file, size, className }) => {
   const [previewUrl, setPreviewUrl] = useState(null);
 
   useEffect(() => {
@@ -21,6 +21,7 @@ const ImagePreview = ({ file, size }) => {
         <img
           src={previewUrl}
           alt="Preview"
+          className={className}
           style={{
             height: size.height,
             width: "auto",

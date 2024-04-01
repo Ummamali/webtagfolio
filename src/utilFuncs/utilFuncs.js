@@ -1,4 +1,5 @@
 import tinycolor from "tinycolor2";
+import ColorThief from "colorthief";
 
 export function isValidEmail(email) {
   // Regular expression for a basic email validation
@@ -42,6 +43,41 @@ function suggestColors(images) {
       console.log(colorNames);
     };
   }
+}
+
+export function countOccurrences(array) {
+  const counts = {};
+  array.forEach((item) => {
+    counts[item] = (counts[item] || 0) + 1;
+  });
+  return counts;
+}
+
+export async function getPrimaryColors(imageFile) {
+  var colorThief = new ColorThief();
+
+  // Create an image element
+  var img = new Image();
+
+  // Define a promise to handle asynchronous loading of the image
+  var imgPromise = new Promise((resolve, reject) => {
+    img.onload = function () {
+      resolve(img);
+    };
+    img.onerror = function () {
+      reject(new Error("Failed to load image."));
+    };
+  });
+
+  // Set the image source
+  img.src = URL.createObjectURL(imageFile);
+
+  // When the image is loaded, get the primary color palette
+  return imgPromise.then((img) => {
+    // Get the primary color palette
+    var palette = colorThief.getPalette(img, 5); // Change the number to get more or fewer colors
+    return palette;
+  });
 }
 
 export function findClosestColorName(...rgb) {
