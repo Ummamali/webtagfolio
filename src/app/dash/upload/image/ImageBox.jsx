@@ -4,15 +4,10 @@ import { taggingEngine } from "../../../../../backend";
 import { useDispatch, useSelector } from "react-redux";
 import { flashedError } from "../../../../store/ApplicationSlice";
 import {
-  countOccurances,
-  countOccurrences,
   findClosestColorName,
   getPrimaryColors,
 } from "../../../../utilFuncs/utilFuncs";
 import TagBox from "./TagBox";
-
-import * as tf from "@tensorflow/tfjs";
-import * as cocoSsd from "@tensorflow-models/coco-ssd";
 
 export default function ImageBox({
   file,
@@ -60,18 +55,6 @@ export default function ImageBox({
 
     // Now we are actually deling with it
     setIsLoading(true);
-    // Before we upload the file, we analyze it here
-    detectObjects(file)
-      .then((predictions) => {
-        const itemClasses = predictions.map((item) => item.class);
-        const uniqueItemClasses = [...new Set(itemClasses)];
-        const counts = countOccurrences(itemClasses);
-        const countTags = Object.keys(counts).map(
-          (cls) => `${cls} (count): ${counts[cls]}`
-        );
-        setObjectTags((prev) => [...prev, ...uniqueItemClasses, ...countTags]);
-      })
-      .catch(console.log);
     contactServer().catch((error) => {
       dispatchStore(flashedError("Failed to analyze file"));
       setIsLoading(false);
@@ -244,8 +227,8 @@ export default function ImageBox({
                   )
                 )
               ) : (
-                <p className="text-gray-500 italic">
-                  <small>No people are present</small>
+                <p className="text-red-700/70 italic mt-1">
+                  <small>0 known persons in this image</small>
                 </p>
               )}
             </div>

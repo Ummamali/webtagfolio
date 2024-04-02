@@ -1,15 +1,26 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ImageBox from "./ImageBox";
+import SelectBucketDropdown from "./SelectBucketDropdown";
 import { taggingEngine } from "../../../../../backend";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { flashedError } from "../../../../store/ApplicationSlice";
+import {
+  bucketsActions,
+  loadBucketsThunk,
+} from "../../../../store/BucketsSlice";
 
 export default function UploadImage() {
   const token = useSelector((state) => state.user.token);
+  const dispatchStore = useDispatch();
   const [imageFiles, setImageFiles] = useState([]);
   const [selected, setSelected] = useState([]);
   const [facialLoading, setFacialLoading] = useState(false);
   const [facialTags, setFacialTags] = useState({});
+
+  useEffect(() => {
+    dispatchStore(loadBucketsThunk({ token: token }));
+  }, []);
 
   function markSelected(idx) {
     setSelected((prev) => [...prev, idx]);
@@ -35,6 +46,10 @@ export default function UploadImage() {
   }
 
   function doFacialRecognition() {
+    if (selected.length === 0) {
+      dispatchStore(flashedError("No selections"));
+      return null;
+    }
     // First we save the files
     setFacialLoading(true);
     taggingEngine.handlers
@@ -82,7 +97,7 @@ export default function UploadImage() {
     <div className="bg-mainDark px-4 py-6">
       <div className="mb-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl text-gray-100/70">Upload an Image</h1>
+          <h1 className="text-3xl text-gray-100/70 mb-1">Upload an Image</h1>
           <button
             className={
               "btn border border-mainAccent text-mainAccent " +
@@ -94,10 +109,13 @@ export default function UploadImage() {
             {facialLoading ? "Loading..." : "Find People"}
           </button>
         </div>
-        <small className="text-gray-100/30">
-          Upload and save your important media assets to analyze them
-          efficiently
-        </small>
+        <p className="mb-3">
+          <small className="text-gray-100/30">
+            Upload and save your important media assets to analyze them
+            efficiently
+          </small>
+        </p>
+        <SelectBucketDropdown />
       </div>
       <div>
         <input
@@ -110,6 +128,7 @@ export default function UploadImage() {
           onChange={listFiles}
         />
         <div className="space-y-4 mt-6">
+          <h3 className="text-2xl text-gray-100/70 mb-4">Media Items</h3>
           {imageFiles.length > 0 ? (
             imageFiles.map((f, idx) => (
               <ImageBox
