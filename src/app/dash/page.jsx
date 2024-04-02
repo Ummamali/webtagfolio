@@ -33,7 +33,9 @@ export default function page() {
       <button
         className="btn-mainAccent"
         onClick={() => {
-          taggingEngine.handlers.askFacialTags(["img.jpg"], "_temp", token);
+          taggingEngine.handlers
+            .askFacialTags(["img.jpg"], "_temp", token)
+            .then((resObj) => console.log);
         }}
       >
         Run it

@@ -14,14 +14,25 @@ import TagBox from "./TagBox";
 import * as tf from "@tensorflow/tfjs";
 import * as cocoSsd from "@tensorflow-models/coco-ssd";
 
-export default function ImageBox({ file }) {
+export default function ImageBox({
+  file,
+  markSelected,
+  unmarkSelected,
+  selected,
+  idx,
+  myFacialTags,
+}) {
   const [selectedObjectTags, setSelectedObjectTags] = useState([]);
   const [objectTags, setObjectTags] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [askMore, setAskMore] = useState(true);
 
+  const [selectedFacialTags, setSelectedFacialTags] = useState([]);
+
   const token = useSelector((state) => state.user.token);
   const dispatchStore = useDispatch();
+
+  const isSelected = selected.includes(idx);
 
   const detectObjects = async (imageFile) => {
     const imageUrl = URL.createObjectURL(imageFile);
@@ -101,8 +112,20 @@ export default function ImageBox({ file }) {
     setSelectedObjectTags((prev) => [...prev, idx]);
   }
 
+  function gotUnselected(idx) {
+    setSelectedObjectTags((prev) => prev.filter((i) => i !== idx));
+  }
+
+  function facialGotSelected(idx) {
+    setSelectedFacialTags((prev) => [...prev, idx]);
+  }
+
+  function facialGotUnselected(idx) {
+    setSelectedFacialTags((prev) => prev.filter((i) => i !== idx));
+  }
+
   return (
-    <div className="flex bg-white/5 p-3 rounded shadow">
+    <div className="flex bg-lightDark px-6 py-6 rounded shadow">
       <ImagePreview
         file={file}
         size={{ height: "130px" }}
@@ -114,23 +137,53 @@ export default function ImageBox({ file }) {
             <h2 className="text-gray-400">{file.name}</h2>
             <small className="text-gray-400/80 block -mt-1">{file.type}</small>
           </div>
-
-          {objectTags.length === 0 ? (
+          <div className="flex items-center">
             <button
               className={
-                "border border-mainAccent text-mainAccent py-2 px-4 rounded text-sm disabled:opacity-30 "
+                "btn text-sm p-0 rounded-sm mr-4 border leading-none " +
+                (isSelected
+                  ? "bg-mainAccent text-black/70 border-transparent"
+                  : "text-gray-400 border-gray-500")
               }
-              onClick={uploaFile}
-              disabled={isLoading}
+              onClick={() =>
+                isSelected ? unmarkSelected(idx) : markSelected(idx)
+              }
             >
-              Analyze
+              <span className="material-symbols-outlined">done</span>
             </button>
-          ) : null}
+
+            {objectTags.length === 0 ? (
+              <button
+                className={
+                  "border border-mainAccent text-mainAccent py-2 px-4 rounded text-sm disabled:opacity-30 "
+                }
+                onClick={uploaFile}
+                disabled={isLoading}
+              >
+                Analyze
+              </button>
+            ) : null}
+          </div>
         </div>
+        {/* Objects tags section */}
         <div className="w-full overflow-x-hidden">
           {objectTags.length > 0 ? (
             <div>
-              <p className="text-gray-400 mb-2">Objects</p>
+              <p className="text-gray-400/80 mb-2 text-xl">Objects</p>
+              <div className="flex items-center flex-wrap border-b border-dashed border-gray-400/70 pb-2">
+                {selectedObjectTags.length > 0
+                  ? selectedObjectTags
+                      .map((i) => ({ tag: objectTags[i], idx: i }))
+                      .map(({ tag, idx }) => (
+                        <button
+                          className="border border-purple-500 shadow py-1 px-2 rounded-sm text-purple-500 text-sm mr-2 hover:border-gray-400 hover:text-gray-400"
+                          onClick={() => gotUnselected(idx)}
+                        >
+                          {tag}
+                        </button>
+                      ))
+                  : null}
+              </div>
               <div className="flex items-center flex-wrap">
                 {objectTags.map((o, i) =>
                   selectedObjectTags.includes(i) ? null : (
@@ -144,16 +197,59 @@ export default function ImageBox({ file }) {
                 )}
                 {askMore ? (
                   <button
-                    className="text-gray-500 italic text-sm"
+                    className="text-gray-500 italic text-sm mt-2"
                     onClick={askMoreTags}
                     disabled={isLoading}
                   >
-                    load more
+                    {isLoading ? "loading..." : "load more"}
                   </button>
                 ) : null}
               </div>
             </div>
           ) : null}
+        </div>
+        {/* People tags section */}
+        <div className="mt-3">
+          <h3 className="text-gray-400/80 text-xl mb-2">People</h3>
+          {/* Selected facial tags */}
+          <div className="flex border-b border-dashed border-gray-400 pb-2">
+            {myFacialTags !== null && myFacialTags.length > 0
+              ? myFacialTags.map((txt, idx) =>
+                  selectedFacialTags.includes(idx) ? (
+                    <button
+                      className="border border-purple-500 shadow py-1 px-2 rounded-sm text-purple-500 text-sm mr-2 hover:border-gray-400 hover:text-gray-400"
+                      onClick={() => facialGotUnselected(idx)}
+                    >
+                      {txt}
+                    </button>
+                  ) : null
+                )
+              : null}
+          </div>
+          {myFacialTags === null ? (
+            <p className="text-gray-500 italic">
+              <small>Not generated yet</small>
+            </p>
+          ) : (
+            <div className="flex">
+              {myFacialTags.length > 0 ? (
+                myFacialTags.map((name, i) =>
+                  selectedFacialTags.includes(i) ? null : (
+                    <TagBox
+                      text={name}
+                      key={name + i}
+                      gotSelected={facialGotSelected}
+                      idx={i}
+                    />
+                  )
+                )
+              ) : (
+                <p className="text-gray-500 italic">
+                  <small>No people are present</small>
+                </p>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

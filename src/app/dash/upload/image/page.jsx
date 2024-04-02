@@ -1,9 +1,23 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ImageBox from "./ImageBox";
+import { taggingEngine } from "../../../../../backend";
+import { useSelector } from "react-redux";
 
 export default function UploadImage() {
+  const token = useSelector((state) => state.user.token);
   const [imageFiles, setImageFiles] = useState([]);
+  const [selected, setSelected] = useState([]);
+  const [facialLoading, setFacialLoading] = useState(false);
+  const [facialTags, setFacialTags] = useState({});
+
+  function markSelected(idx) {
+    setSelected((prev) => [...prev, idx]);
+  }
+
+  function unmarkSelected(idx) {
+    setSelected((prev) => prev.filter((value) => value !== idx));
+  }
 
   // lists all the files when they are selected
   function listFiles(e) {
@@ -20,6 +34,46 @@ export default function UploadImage() {
     });
   }
 
+  function doFacialRecognition() {
+    // First we save the files
+    setFacialLoading(true);
+    taggingEngine.handlers
+      .sendImagesToEngine(
+        selected.map((i) => imageFiles[i]),
+        token
+      )
+      .then((resObj) => {
+        // Then we perform facial taggings
+        taggingEngine.handlers
+          .askFacialTags(
+            selected.map((i) => imageFiles[i]).map((img) => img.name),
+            "_temp",
+            token
+          )
+          .then((resObj) => {
+            const tags = {};
+            for (const key in resObj) {
+              const nameTags = resObj[key].present.map((n) => n.name);
+              const flatFacialTags = [];
+              for (const person in nameTags) {
+                const names = nameTags[person];
+                for (const name of names) {
+                  flatFacialTags.push(name);
+                }
+              }
+
+              tags[key] = flatFacialTags;
+            }
+
+            setFacialTags((prev) => ({ ...prev, ...tags }));
+            setFacialLoading(false);
+          });
+      })
+      .catch((err) => {
+        setFacialLoading(false);
+      });
+  }
+
   function uploadAllFiles() {
     // we do it sometime later
   }
@@ -29,11 +83,16 @@ export default function UploadImage() {
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl text-gray-100/70">Upload an Image</h1>
-          <p
-            className={"text-green-500"}
+          <button
+            className={
+              "btn border border-mainAccent text-mainAccent " +
+              (facialLoading ? "animate-bounce" : "")
+            }
+            disabled={facialLoading}
+            onClick={doFacialRecognition}
           >
-            <span className="material-symbols-outlined">check_circle</span>
-          </p>
+            {facialLoading ? "Loading..." : "Find People"}
+          </button>
         </div>
         <small className="text-gray-100/30">
           Upload and save your important media assets to analyze them
@@ -50,9 +109,19 @@ export default function UploadImage() {
           multiple={true}
           onChange={listFiles}
         />
-        <div className="border border-gray-600 rounded p-4 my-3 space-y-2">
+        <div className="space-y-4 mt-6">
           {imageFiles.length > 0 ? (
-            imageFiles.map((f) => <ImageBox file={f} key={f.name} />)
+            imageFiles.map((f, idx) => (
+              <ImageBox
+                file={f}
+                idx={idx}
+                key={f.name}
+                markSelected={markSelected}
+                unmarkSelected={unmarkSelected}
+                selected={selected}
+                myFacialTags={facialTags[f.name] ? facialTags[f.name] : null}
+              />
+            ))
           ) : (
             <small className="text-gray-500 block text-center">
               No Images to be analyzed
