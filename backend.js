@@ -34,6 +34,7 @@ export const taggingEngine = {
   urls: {
     tagImage: `${taggingEngineServerURL}/image/save`,
     askTags: `${taggingEngineServerURL}/image/askTags`,
+    ackFaces: `${taggingEngineServerURL}/image/askTags/facial`,
   },
 };
 
@@ -78,5 +79,24 @@ async function askTags(filenames, bucketName, token, algo = "RESNET") {
   }
 }
 
+// ask for tags suggestions of any already uploaded file
+async function askFacialTags(filenames, bucketName, token) {
+  const res = await fetch(taggingEngine.urls.ackFaces, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+    body: JSON.stringify({ filenames, bucketName }),
+  });
+  if (res.ok) {
+    const resObj = await res.json();
+    return resObj;
+  } else {
+    throw new Error();
+  }
+}
+
 taggingEngine.handlers.sendImagesToEngine = sendImagesToEngine;
 taggingEngine.handlers.askTags = askTags;
+taggingEngine.handlers.askFacialTags = askFacialTags;

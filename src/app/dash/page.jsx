@@ -33,19 +33,7 @@ export default function page() {
       <button
         className="btn-mainAccent"
         onClick={() => {
-          async function func() {
-            const res = await fetch(simpleBackend.urls.allBuckets, {
-              method: "POST",
-              headers: {
-                // "Content-Type": "application/json",
-                Authorization: token,
-              },
-            });
-            const resObj = await res.json();
-            console.log(resObj);
-          }
-
-          func();
+          taggingEngine.handlers.askFacialTags(["img.jpg"], "_temp", token);
         }}
       >
         Run it
