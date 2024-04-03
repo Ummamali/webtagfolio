@@ -34,8 +34,10 @@ export default function page() {
         className="btn-mainAccent"
         onClick={() => {
           taggingEngine.handlers
-            .askFacialTags(["img.jpg"], "_temp", token)
-            .then((resObj) => console.log);
+            .recognizeMediaItems(["car.jpg"], "bucketone", token, {
+              "car.jpg": { object: [], person: [] },
+            })
+            .then(console.log);
         }}
       >
         Run it

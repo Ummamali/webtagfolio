@@ -4,7 +4,11 @@ import ImageBox from "./ImageBox";
 import SelectBucketDropdown from "./SelectBucketDropdown";
 import { taggingEngine } from "../../../../../backend";
 import { useDispatch, useSelector } from "react-redux";
-import { flashedError } from "../../../../store/ApplicationSlice";
+import {
+  flashedError,
+  flashedInfo,
+  flashedSuccess,
+} from "../../../../store/ApplicationSlice";
 import {
   bucketsActions,
   loadBucketsThunk,
@@ -17,6 +21,11 @@ export default function UploadImage() {
   const [selected, setSelected] = useState([]);
   const [facialLoading, setFacialLoading] = useState(false);
   const [facialTags, setFacialTags] = useState({});
+
+  const [bucketName, setBucketName] = useState(null);
+  const [tagsObj, setTagsObj] = useState({});
+
+  const [recognizedMediaNames, setRecognizedMediaNames] = useState([]);
 
   useEffect(() => {
     dispatchStore(loadBucketsThunk({ token: token }));
@@ -89,8 +98,63 @@ export default function UploadImage() {
       });
   }
 
-  function uploadAllFiles() {
+  function addTagToTagsObj(tagText, tagType, mediaName) {
+    setTagsObj((prev) => {
+      const newOne = JSON.parse(JSON.stringify(prev));
+      if (newOne[mediaName] === undefined) {
+        newOne[mediaName] = { object: [], person: [] };
+      }
+      newOne[mediaName][tagType].push(tagText);
+      return newOne;
+    });
+  }
+
+  function removeTagFromTagsObj(tagText, tagType, mediaName) {
+    setTagsObj((prev) => {
+      const newOne = JSON.parse(JSON.stringify(prev));
+      newOne[mediaName][tagType] = newOne[mediaName][tagType].filter(
+        (t) => t !== tagText
+      );
+      return newOne;
+    });
+  }
+
+  function sendForRecognition() {
+    if (bucketName === null) {
+      dispatchStore(flashedError("Please select a bucket to upload"));
+      return null;
+    }
     // we do it sometime later
+    const mediaNames = selected.map((i) => imageFiles[i].name);
+    if (mediaNames.length === 0) {
+      dispatchStore(flashedInfo("No media to upload"));
+      return null;
+    }
+    // if the user tries to recognize an unanalyzed file
+    for (const name of mediaNames) {
+      if (tagsObj[name] === undefined) {
+        dispatchStore(flashedInfo(`Please add atleast one tag for ${name}`));
+        return null;
+      }
+
+      if (recognizedMediaNames.includes(name)) {
+        dispatchStore(flashedInfo(`${name} has been uploaded, unmark it`));
+        return null;
+      }
+    }
+
+    // all good
+    taggingEngine.handlers
+      .recognizeMediaItems(mediaNames, bucketName, token, tagsObj)
+      .then((resObj) => {
+        dispatchStore(
+          flashedSuccess(`Successfully uploaded ${mediaNames.length} item(s)`)
+        );
+        setRecognizedMediaNames((prev) => [...prev, ...mediaNames]);
+      })
+      .catch((err) =>
+        dispatchStore(flashedError("Unable to properly upload media items"))
+      );
   }
 
   return (
@@ -98,16 +162,6 @@ export default function UploadImage() {
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl text-gray-100/70 mb-1">Upload an Image</h1>
-          <button
-            className={
-              "btn border border-mainAccent text-mainAccent " +
-              (facialLoading ? "animate-bounce" : "")
-            }
-            disabled={facialLoading}
-            onClick={doFacialRecognition}
-          >
-            {facialLoading ? "Loading..." : "Find People"}
-          </button>
         </div>
         <p className="mb-3">
           <small className="text-gray-100/30">
@@ -115,7 +169,10 @@ export default function UploadImage() {
             efficiently
           </small>
         </p>
-        <SelectBucketDropdown />
+        <SelectBucketDropdown
+          bucketName={bucketName}
+          setBucketName={setBucketName}
+        />
       </div>
       <div>
         <input
@@ -128,7 +185,30 @@ export default function UploadImage() {
           onChange={listFiles}
         />
         <div className="space-y-4 mt-6">
-          <h3 className="text-2xl text-gray-100/70 mb-4">Media Items</h3>
+          <div className="flex items-center justify-between">
+            <h3 className="text-2xl text-gray-100/70 mb-4">Media Items</h3>
+            <div className="flex items-center">
+              <button
+                className={
+                  "btn border border-mainAccent text-mainAccent mr-2 text-sm " +
+                  (facialLoading ? "animate-bounce" : "")
+                }
+                disabled={facialLoading}
+                onClick={doFacialRecognition}
+              >
+                {facialLoading ? "Loading..." : "Find People"}
+              </button>
+              <button
+                className={
+                  "btn px-10 bg-mainAccent text-white/90 " +
+                  (facialLoading ? "animate-bounce" : "")
+                }
+                onClick={sendForRecognition}
+              >
+                Upload
+              </button>
+            </div>
+          </div>
           {imageFiles.length > 0 ? (
             imageFiles.map((f, idx) => (
               <ImageBox
@@ -139,6 +219,8 @@ export default function UploadImage() {
                 unmarkSelected={unmarkSelected}
                 selected={selected}
                 myFacialTags={facialTags[f.name] ? facialTags[f.name] : null}
+                addTagToTagsObj={addTagToTagsObj}
+                removeTagFromTagsObj={removeTagFromTagsObj}
               />
             ))
           ) : (

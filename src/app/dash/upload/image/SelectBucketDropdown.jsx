@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
-export default function SelectBucketDropdown() {
+export default function SelectBucketDropdown({ bucketName, setBucketName }) {
   const [opened, setOpened] = useState(false);
-  const [selectedName, setSetselectedName] = useState(null);
   let buckets = useSelector((state) => state.buckets.data.list);
   buckets = buckets === undefined ? [] : buckets;
   const bucketNames = buckets.map((b) => b.name);
@@ -13,7 +12,7 @@ export default function SelectBucketDropdown() {
         className="btn py-2 px-4 border border-gray-500 text-gray-400 rounded-sm flex items-center justify-between w-[300px]"
         onClick={() => setOpened((prev) => !prev)}
       >
-        <span>{selectedName === null ? "Select Bucket" : selectedName}</span>
+        <span>{bucketName === null ? "Select Bucket" : bucketName}</span>
         <span class="material-symbols-outlined leading-inherit ml-3">
           expand_more
         </span>
@@ -27,9 +26,10 @@ export default function SelectBucketDropdown() {
           ) : (
             bucketNames.map((bNme) => (
               <button
-                className="text-gray-400 border border-transparent hover:border-gray-400 w-full py-1"
+                key={bNme}
+                className="text-gray-400 border border-transparent hover:bg-black/30 w-full py-1"
                 onClick={() => {
-                  setSetselectedName(bNme);
+                  setBucketName(bNme);
                   setOpened(false);
                 }}
               >

@@ -35,6 +35,7 @@ export const taggingEngine = {
     tagImage: `${taggingEngineServerURL}/image/save`,
     askTags: `${taggingEngineServerURL}/image/askTags`,
     ackFaces: `${taggingEngineServerURL}/image/askTags/facial`,
+    ragisterMediaItems: `${taggingEngineServerURL}/image/recognize`,
   },
 };
 
@@ -97,6 +98,29 @@ async function askFacialTags(filenames, bucketName, token) {
   }
 }
 
+// recognize media items
+async function recognizeMediaItems(mediaNames, bucketName, token, tagsObj) {
+  const res = await fetch(taggingEngine.urls.ragisterMediaItems, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: token,
+    },
+    body: JSON.stringify({
+      bucketName: bucketName,
+      mediaNames: mediaNames,
+      tags: tagsObj,
+    }),
+  });
+  if (res.ok) {
+    const resObj = await res.json();
+    return resObj;
+  } else {
+    throw new Error();
+  }
+}
+
 taggingEngine.handlers.sendImagesToEngine = sendImagesToEngine;
 taggingEngine.handlers.askTags = askTags;
 taggingEngine.handlers.askFacialTags = askFacialTags;
+taggingEngine.handlers.recognizeMediaItems = recognizeMediaItems;

@@ -16,6 +16,8 @@ export default function ImageBox({
   selected,
   idx,
   myFacialTags,
+  addTagToTagsObj,
+  removeTagFromTagsObj,
 }) {
   const [selectedObjectTags, setSelectedObjectTags] = useState([]);
   const [objectTags, setObjectTags] = useState([]);
@@ -92,18 +94,22 @@ export default function ImageBox({
   }
 
   function gotSelected(idx) {
+    addTagToTagsObj(objectTags[idx], "object", file.name);
     setSelectedObjectTags((prev) => [...prev, idx]);
   }
 
   function gotUnselected(idx) {
+    removeTagFromTagsObj(objectTags[idx], "object", file.name);
     setSelectedObjectTags((prev) => prev.filter((i) => i !== idx));
   }
 
   function facialGotSelected(idx) {
+    addTagToTagsObj(myFacialTags[idx], "person", file.name);
     setSelectedFacialTags((prev) => [...prev, idx]);
   }
 
   function facialGotUnselected(idx) {
+    removeTagFromTagsObj(myFacialTags[idx], "person", file.name);
     setSelectedFacialTags((prev) => prev.filter((i) => i !== idx));
   }
 
