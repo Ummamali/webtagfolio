@@ -25,6 +25,13 @@ export const simpleBackend = {
     createBucket: `${simpleBackendServerURL}/media/bucket/create`,
     allBuckets: `${simpleBackendServerURL}/media/bucket/all`,
   },
+  resourcesUrl: {
+    buckets: {
+      all: `${simpleBackendServerURL}/res/buckets`,
+      individual: (bucketName) =>
+        `${simpleBackendServerURL}/res/buckets/${bucketName}`,
+    },
+  },
 };
 
 // Tagging engine

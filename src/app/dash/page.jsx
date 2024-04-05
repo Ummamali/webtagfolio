@@ -33,10 +33,13 @@ export default function page() {
       <button
         className="btn-mainAccent"
         onClick={() => {
-          taggingEngine.handlers
-            .recognizeMediaItems(["car.jpg"], "bucketone", token, {
-              "car.jpg": { object: [], person: [] },
-            })
+          fetch(simpleBackend.resourcesUrl.buckets.all, {
+            headers: {
+              Authorization: token,
+              "Content-Type": "application/json",
+            },
+          })
+            .then((res) => res.json())
             .then(console.log);
         }}
       >
