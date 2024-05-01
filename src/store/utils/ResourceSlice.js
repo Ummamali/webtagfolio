@@ -7,8 +7,6 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export function createResourceSlice({
   name,
-  pagination = { pageNumber: 0, pageSize: 10 },
-  caching = true,
   additionalInitialState = {},
   additionalReducers = {},
 }) {
@@ -17,14 +15,26 @@ export function createResourceSlice({
     initialState: {
       loadStatus: 0,
       dataItems: [],
-      caching: caching,
+      lastCached: null,
+      indicesMap: {},
       ...additionalInitialState,
     },
     reducers: {
       gotLoaded: (state, action) => {
         // gets the new dataitems from the action.payload and pushes them to the dataItems array
-        state.dataItems.push(action.payload);
+        action.payload.forEach((item) => {
+          state.dataItems.push(item);
+        });
         state.loadStatus = 2;
+      },
+      gotCached: (state, action) => {
+        state.lastCached = action.payload;
+      },
+      indicesMapUpdated: (state, action) => {
+        // gets an array of tuples (id, newIndex) and updates the mapping object
+        action.payload.forEach(([id, idx]) => {
+          state.indicesMap[id] = idx;
+        });
       },
       startedLoading: (state) => {
         state.loadStatus = 1;
@@ -37,12 +47,51 @@ export function createResourceSlice({
   });
 }
 
+export function generateCacherThunk(
+  sliceName,
+  sliceActions,
+  idGetter = (obj) => obj.id
+) {
+  return () => {
+    return (dispatch, getState) => {
+      const sliceState = getState()[sliceName];
+
+      const now = Date.now();
+
+      localStorage.setItem(
+        `_resource_${sliceName}_items`,
+        JSON.stringify(sliceState.dataItems)
+      );
+
+      localStorage.setItem(`_resource_${sliceName}_cachedAt`, now);
+
+      dispatch(sliceActions.gotCached(now));
+    };
+  };
+}
+
+export function generateCacheChecker(sliceName) {
+  return () => {
+    let lastUpdates = localStorage.getItem(
+      `_resource_${sliceName}_lastUpdated`
+    );
+    let items = localStorage.getItem(`_resource_${sliceName}_items`);
+    return lastUpdates === null || items === null;
+  };
+}
+
 export function generateResourceLocalloadThunk(
   sliceName,
   sliceActions,
   idGetter, // given any resource item from dataItems, should return its unique identifier
-  endpoint
+  updatesEndpoint
 ) {
+  /*
+    Dispatch this thunk when you are sure there is data cached (doesnt matter if stale) in the local starage
+    name of local storage ids to be picked are:
+        * _resource_${sliceName}_lastUpdated
+        * _resource_${sliceName}_items
+  */
   return (headers = {}) => {
     return (dispatch, getState) => {
       const sliceState = getState()[sliceName];
@@ -55,39 +104,54 @@ export function generateResourceLocalloadThunk(
           {identifier: any (we will get it from idGetter), lastUpdated: timestamp},.....
         ]
         */
-        let lastUpdates = localStorage.getItem(
-          `_resource_${sliceName}_lastUpdated`
-        );
-        lastUpdates = lastUpdates !== null ? JSON.parse(lastUpdates) : [];
-        // load the items from cache if present
+
         let items = localStorage.getItem(`_resource_${sliceName}_items`);
-        items = items !== null ? JSON.parse(items) : [];
-        // send all the last updates to backend
-        if (lastUpdates.length > 0) {
-          async function getUpdatesFromBackend() {
-            /*
+
+        if (lastUpdates === null || items === null) {
+          throw new Error("Cannot load cached data, Local Storage empty");
+        }
+
+        items = JSON.parse(items);
+        lastUpdates = items.map((item) => ({
+          id: idGetter(item),
+          lastUpdated: item.lastUpdated,
+        }));
+        // load the items from cache if present
+        // If there are items cached, send all the last updates to backend and update cached data. Otherwise
+
+        async function getUpdatesFromBackend() {
+          /*
               This function sends and array of object of interface {id: any, lastUpdated: timestamp}
               and expects to get an array of updated items if any got updated or an object of kind {id: any, deleted: true} if the object of id got deleted
             */
-            const res = await fetch(endpoint, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                ...headers,
-              },
-              body: JSON.stringify(lastUpdates),
-            });
-            if (res.ok) {
-              const resObj = await res.json();
-              for (const item of resObj) {
+          const res = await fetch(updatesEndpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...headers,
+            },
+            body: JSON.stringify(lastUpdates),
+          });
+          if (res.ok) {
+            const resObj = await res.json();
+            for (const updatedItem of resObj) {
+              const idx = items.findIndex(
+                (item) => idGetter(item) === idGetter(updatedItem)
+              );
+              if (updatedItem.deleted) {
+                items.splice(idx, 1);
+              } else {
+                items[idx] = { ...updatedItem };
               }
-            } else {
-              throw new Error();
             }
+            dispatch(sliceActions.gotLoaded(items));
+          } else {
+            throw new Error();
           }
         }
-
-        dispatch(sliceActions.gotLoaded(items));
+        getUpdatesFromBackend().catch(() =>
+          dispatch(sliceActions.failedLoading())
+        );
       } else {
         console.log(`Local Load silenced for resource ${sliceName}`);
       }
@@ -99,24 +163,26 @@ export function genarateResourceFetchedThunk(
   sliceName,
   sliceActions,
   endpoint,
-  fetchCount = 10
+  defaultFetchCount = 10,
+  idGetter = (obj) => obj.id
 ) {
-  return (headers = {}, queryParams = {}, fetchCount = fetchCount) => {
+  return (headers = {}, queryParams = {}, fetchCount = defaultFetchCount) => {
     return (dispatch, getState) => {
       const sliceState = getState()[sliceName];
       const loadStatus = sliceState.loadStatus;
       // if resource is currently not loading, proceed
       if (loadStatus !== 1) {
         async function loadResource() {
+          const dataItemsLength = sliceState.dataItems.length;
           const pageParams = {
-            start: sliceState.items.length(),
+            start: dataItemsLength,
             fetchCount: fetchCount,
           };
           const urlSearchParamsStr = new URLSearchParams({
             ...pageParams,
             ...queryParams,
           }).toString();
-          const res = await fetch(endpoint + urlSearchParamsStr, {
+          const res = await fetch(endpoint + "?" + urlSearchParamsStr, {
             headers: headers,
           });
           // is response if ok then we got the resource, otherwise we got an error
@@ -124,13 +190,21 @@ export function genarateResourceFetchedThunk(
             // Make sure that the body of the response must be a string of resources
             const resObj = await res.json();
             dispatch(sliceActions.gotLoaded(resObj));
+            dispatch(
+              sliceActions.indicesMapUpdated(
+                resObj.map((item, i) => [idGetter(item), dataItemsLength + i])
+              )
+            );
           } else {
             throw new Error();
           }
         }
 
         // now loading the resource
-        loadResource().catch(() => dispatch(sliceActions.failedLoading()));
+        loadResource().catch((err) => {
+          console.error(err);
+          dispatch(sliceActions.failedLoading());
+        });
       } else {
         console.log(`Fetch silenced for resource ${sliceName}`);
       }
