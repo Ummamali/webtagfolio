@@ -43,6 +43,7 @@ export const taggingEngine = {
     askTags: `${taggingEngineServerURL}/image/askTags`,
     ackFaces: `${taggingEngineServerURL}/image/askTags/facial`,
     ragisterMediaItems: `${taggingEngineServerURL}/image/recognize`,
+    getImage: `${taggingEngineServerURL}/image/get`,
   },
 };
 

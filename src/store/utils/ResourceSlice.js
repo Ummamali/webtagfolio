@@ -14,6 +14,7 @@ export function createResourceSlice({
     name: name,
     initialState: {
       loadStatus: 0,
+      createStatus: { id: null, status: 0 },
       dataItems: [],
       lastCached: null,
       indicesMap: {},
@@ -41,6 +42,17 @@ export function createResourceSlice({
       },
       failedLoading: (state) => {
         state.loadStatus = 3;
+      },
+      startedCreating: (state) => {
+        state.createStatus = 1;
+      },
+      failedCreating: (state, action) => {
+        state.createStatus = { id: action.payload, status: 3 };
+      },
+      resourceCreated: (state, action) => {
+        state.dataItems.push(action.payload.resource);
+        state.indicesMap[action.payload.id] = state.dataItems.length - 1;
+        state.createStatus = { id: action.payload.id, status: 2 };
       },
       ...additionalReducers,
     },
@@ -163,10 +175,9 @@ export function genarateResourceFetchedThunk(
   sliceName,
   sliceActions,
   endpoint,
-  defaultFetchCount = 10,
   idGetter = (obj) => obj.id
 ) {
-  return (headers = {}, queryParams = {}, fetchCount = defaultFetchCount) => {
+  return (headers = {}, queryParams = {}) => {
     return (dispatch, getState) => {
       const sliceState = getState()[sliceName];
       const loadStatus = sliceState.loadStatus;
@@ -174,12 +185,8 @@ export function genarateResourceFetchedThunk(
       if (loadStatus !== 1) {
         async function loadResource() {
           const dataItemsLength = sliceState.dataItems.length;
-          const pageParams = {
-            start: dataItemsLength,
-            fetchCount: fetchCount,
-          };
+
           const urlSearchParamsStr = new URLSearchParams({
-            ...pageParams,
             ...queryParams,
           }).toString();
           const res = await fetch(endpoint + "?" + urlSearchParamsStr, {
@@ -187,7 +194,7 @@ export function genarateResourceFetchedThunk(
           });
           // is response if ok then we got the resource, otherwise we got an error
           if (res.ok) {
-            // Make sure that the body of the response must be a string of resources
+            // Make sure that the body of the response must be an array of resources
             const resObj = await res.json();
             dispatch(sliceActions.gotLoaded(resObj));
             dispatch(
@@ -207,6 +214,43 @@ export function genarateResourceFetchedThunk(
         });
       } else {
         console.log(`Fetch silenced for resource ${sliceName}`);
+      }
+    };
+  };
+}
+
+export function generateResourceCreatedThunk(
+  sliceName,
+  sliceActions,
+  endpoint,
+  idGetter = (obj) => obj.id
+) {
+  return (newResourceObj, reqHeaders = {}) => {
+    return (dispatch, getState) => {
+      const sliceState = getState()[sliceName];
+      const createStatus = sliceState.createStatus;
+      if (createStatus !== 1) {
+        async function contactBackendToCreate() {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", ...reqHeaders },
+            body: JSON.stringify(newResourceObj),
+          });
+
+          if (res.status === 201) {
+            dispatch(
+              sliceActions.resourceCreated({
+                id: idGetter(newResourceObj),
+                resource: newResourceObj,
+              })
+            );
+          } else {
+            throw new Error("Failed to create resource");
+          }
+        }
+        contactBackendToCreate().catch((err) =>
+          dispatch(sliceActions.failedCreating(idGetter(newResourceObj)))
+        );
       }
     };
   };

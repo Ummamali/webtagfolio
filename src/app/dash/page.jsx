@@ -4,7 +4,7 @@ import { simpleBackend, taggingEngine } from "../../../backend";
 import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
 import CreateBucketMOdel from "./CreateBucketMOdel";
-import { loadBucketsThunk } from "../../store/BucketsSlice";
+import { createBucketThunk, loadBucketsThunk } from "../../store/BucketsSlice";
 
 export default function page() {
   const token = useSelector((state) => state.user.token);
@@ -12,16 +12,16 @@ export default function page() {
   const searchParams = useSearchParams();
   const dispatchStore = useDispatch();
 
-  useEffect(() => {
-    dispatchStore(loadBucketsThunk({ token: token }));
-  }, []);
+  // useEffect(() => {
+  //   dispatchStore(loadBucketsThunk({ Authorization: token }));
+  // }, []);
 
-  if (bucketState.loadStatus === 1 || bucketState.loadStatus === 0) {
-    return <p>Loading</p>;
-  }
-  if (bucketState.loadStatus === 3) {
-    return <p>Error</p>;
-  }
+  // if (bucketState.loadStatus === 1 || bucketState.loadStatus === 0) {
+  //   return <p>Loading</p>;
+  // }
+  // if (bucketState.loadStatus === 3) {
+  //   return <p>Error</p>;
+  // }
 
   return (
     <div>
@@ -33,17 +33,21 @@ export default function page() {
       <button
         className="btn-mainAccent"
         onClick={() => {
-          fetch(simpleBackend.resourcesUrl.buckets.all, {
-            headers: {
-              Authorization: token,
-              "Content-Type": "application/json",
-            },
-          })
-            .then((res) => res.json())
-            .then(console.log);
+          dispatchStore(loadBucketsThunk({ Authorization: token }));
         }}
       >
         Run it
+      </button>
+
+      <button
+        className="btn-mainAccent"
+        onClick={() => {
+          dispatchStore(
+            createBucketThunk({ name: "mynewbucket" }, { Authorization: token })
+          );
+        }}
+      >
+        Create It
       </button>
     </div>
   );

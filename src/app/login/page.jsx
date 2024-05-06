@@ -53,6 +53,8 @@ export default function LogIn() {
           const token = `Bearer ${resObj.token}`;
           localStorage.setItem("Authorization", token);
           localStorage.setItem("userId", resObj.userId);
+          localStorage.setItem("username", resObj.username);
+          localStorage.setItem("userEmail", resObj.email);
           router.push("/dash");
         } else {
           throw new Error("Unable to Login");

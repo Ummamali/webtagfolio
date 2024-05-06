@@ -9,6 +9,8 @@ export const userSlice = createSlice({
     userIdentified: (state, action) => {
       state.token = action.payload.token;
       state.userId = action.payload.userId;
+      state.email = action.payload.email;
+      state.username = action.payload.username;
     },
   },
 });
