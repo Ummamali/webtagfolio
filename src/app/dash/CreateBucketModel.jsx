@@ -79,7 +79,7 @@ export default function CreateBucketModel() {
   }
   return (
     <Model close={close}>
-      <main className="relative shadow-lg max-w-lg bg-lightDark p-8 rounded mx-auto mt-10">
+      <main className="relative z-20 shadow-lg max-w-lg bg-lightDark p-8 rounded mx-auto mt-10">
         <button
           className="absolute top-4 right-4 ml-auto text-white/50"
           onClick={close}
