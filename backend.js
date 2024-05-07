@@ -25,13 +25,6 @@ export const simpleBackend = {
     createBucket: `${simpleBackendServerURL}/media/bucket/create`,
     allBuckets: `${simpleBackendServerURL}/media/bucket/all`,
   },
-  resourcesUrl: {
-    buckets: {
-      all: `${simpleBackendServerURL}/res/buckets`,
-      individual: (bucketName) =>
-        `${simpleBackendServerURL}/res/buckets/${bucketName}`,
-    },
-  },
 };
 
 // Tagging engine
@@ -46,6 +39,12 @@ export const taggingEngine = {
     getImage: `${taggingEngineServerURL}/image/get`,
   },
 };
+
+export const resources = {
+  buckets: { url: `${simpleBackendServerURL}/res/buckets` },
+};
+
+// ---------------------------------------------------------------------------
 
 // Image tagging handler
 async function sendImagesToEngine(imageFiles, token) {

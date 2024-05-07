@@ -1,4 +1,4 @@
-import { simpleBackend } from "../../backend";
+import { resources } from "../../backend";
 import {
   createResourceSlice,
   genarateResourceFetchedThunk,
@@ -17,14 +17,14 @@ export const bucketsActions = bucketsSlice.actions;
 export const loadBucketsThunk = genarateResourceFetchedThunk(
   "buckets",
   bucketsActions,
-  simpleBackend.resourcesUrl.buckets.all,
+  resources.buckets.url,
   bucketIdGetter
 );
 
 export const createBucketThunk = generateResourceCreatedThunk(
   "buckets",
   bucketsActions,
-  simpleBackend.resourcesUrl.buckets.all,
+  resources.buckets.url,
   bucketIdGetter
 );
 
