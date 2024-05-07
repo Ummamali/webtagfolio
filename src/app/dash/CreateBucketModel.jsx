@@ -1,5 +1,5 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import useValidator, {
@@ -15,7 +15,7 @@ import {
 } from "../../store/ApplicationSlice";
 import Model from "../util/Model";
 import { simpleBackend } from "../../../backend";
-import { bucketsActions } from "../../store/BucketsSlice";
+import { bucketsActions, createBucketThunk } from "../../store/BucketsSlice";
 
 const identityList = { name: "Name must be 5 or more characters long" };
 const validatorPredicates = { name: (str) => ({ isValid: str.length >= 5 }) };
@@ -26,16 +26,43 @@ export const inputCls = {
   errorMessage: "text-red-500",
 };
 
-export default function CreateOrganization() {
+export default function CreateBucketModel() {
   const [requestLoading, setRequestLoading] = useState(false);
   const dispatchStore = useDispatch();
   const token = useSelector((state) => state.user.token);
+  const bucketsCreateStatus = useSelector(
+    (state) => state.buckets.createStatus
+  );
   const nameRef = useRef();
   const [validityStatus, dispatchValidity, validate] = useValidator(
     identityList,
     validatorPredicates
   );
   const router = useRouter();
+
+  useEffect(() => {
+    if (
+      nameRef.current.value === bucketsCreateStatus.id &&
+      bucketsCreateStatus.status === 1
+    ) {
+      setRequestLoading(true);
+    }
+
+    if (
+      nameRef.current.value === bucketsCreateStatus.id &&
+      bucketsCreateStatus.status === 3
+    ) {
+      dispatchStore(flashedError("Failed to create bucket!"));
+    }
+
+    if (
+      nameRef.current.value === bucketsCreateStatus.id &&
+      bucketsCreateStatus.status === 2
+    ) {
+      close();
+      dispatchStore(flashedSuccess("Bucket has been created!"));
+    }
+  }, [bucketsCreateStatus]);
 
   function close() {
     router.back();
@@ -47,34 +74,7 @@ export default function CreateOrganization() {
     const currentValues = { name: nameRef.current.value };
 
     if (syncValidateAll(currentValues, validate)) {
-      async function requestServer() {
-        const res = await fetch(simpleBackend.urls.createBucket, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: token,
-          },
-          body: JSON.stringify(currentValues),
-        });
-
-        if (res.ok) {
-          const newBucket = await res.json();
-          console.log(newBucket);
-          dispatchStore(bucketsActions.bucketCreated(newBucket));
-          dispatchStore(flashedSuccess("Bucket created successfully!"));
-          setRequestLoading(false);
-          close();
-        } else {
-          throw new Error("Some error occured");
-        }
-      }
-      //  sending it
-      setRequestLoading(true);
-      requestServer().catch((err) => {
-        console.log(err);
-        setRequestLoading(false);
-        dispatchStore(flashedError("Unable to create bucket"));
-      });
+      dispatchStore(createBucketThunk(currentValues, { Authorization: token }));
     }
   }
   return (
@@ -103,6 +103,7 @@ export default function CreateOrganization() {
             validate={getDefaultValidator(validate)}
             resetValidity={getDefaultResetValidator(dispatchValidity)}
             ref={nameRef}
+            forInputEl={{ disabled: requestLoading }}
           />
           <button
             className="btn-mainAccent mt-4 w-full"

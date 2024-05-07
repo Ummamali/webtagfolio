@@ -5,6 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useSearchParams } from "next/navigation";
 import CreateBucketMOdel from "./CreateBucketMOdel";
 import { createBucketThunk, loadBucketsThunk } from "../../store/BucketsSlice";
+import Showcase from "./DashboardItems/Showcase";
+import { userDataLoaded, userDataLoadedThunk } from "../../store/UserSlice";
 
 export default function page() {
   const token = useSelector((state) => state.user.token);
@@ -12,43 +14,38 @@ export default function page() {
   const searchParams = useSearchParams();
   const dispatchStore = useDispatch();
 
-  // useEffect(() => {
-  //   dispatchStore(loadBucketsThunk({ Authorization: token }));
-  // }, []);
-
-  // if (bucketState.loadStatus === 1 || bucketState.loadStatus === 0) {
-  //   return <p>Loading</p>;
-  // }
-  // if (bucketState.loadStatus === 3) {
-  //   return <p>Error</p>;
-  // }
-
   return (
     <div>
-      {/* necessary occasionale models */}
+      {/* necessary occasional models */}
       {searchParams.get("createBucket") === "true" ? (
         <CreateBucketMOdel />
       ) : null}
-      <h2 className="text-gray-500">Dashboard</h2>
-      <button
-        className="btn-mainAccent"
-        onClick={() => {
-          dispatchStore(loadBucketsThunk({ Authorization: token }));
-        }}
-      >
-        Run it
-      </button>
 
-      <button
-        className="btn-mainAccent"
-        onClick={() => {
-          dispatchStore(
-            createBucketThunk({ name: "mynewbucket" }, { Authorization: token })
-          );
-        }}
-      >
-        Create It
-      </button>
+      <h2 className="text-gray-500 text-3xl font-light mt-4">
+        Popular Buckets
+      </h2>
+
+      {bucketState.loadStatus === 2 ? (
+        <Showcase />
+      ) : (
+        <div className="text-center mt-8">
+          <p className="text-gray-400/70">
+            <small>
+              Your buckets are the containers to save your media items
+            </small>
+          </p>
+          <button
+            className="text-mainAccent disabled:text-gray-300"
+            onClick={() => {
+              dispatchStore(loadBucketsThunk({ Authorization: token }));
+              dispatchStore(userDataLoadedThunk(token));
+            }}
+            disabled={bucketState.loadStatus === 1}
+          >
+            {bucketState.loadStatus === 1 ? "Loading..." : "Load Buckets"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

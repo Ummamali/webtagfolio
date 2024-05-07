@@ -24,6 +24,7 @@ export const simpleBackend = {
     orgRequestCode: `${simpleBackendServerURL}/user/organization/code`,
     createBucket: `${simpleBackendServerURL}/media/bucket/create`,
     allBuckets: `${simpleBackendServerURL}/media/bucket/all`,
+    userData: `${simpleBackendServerURL}/user/data`,
   },
 };
 

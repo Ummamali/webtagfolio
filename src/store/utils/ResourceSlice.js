@@ -182,7 +182,8 @@ export function genarateResourceFetchedThunk(
       const sliceState = getState()[sliceName];
       const loadStatus = sliceState.loadStatus;
       // if resource is currently not loading, proceed
-      if (loadStatus !== 1) {
+      console.log(loadStatus);
+      if (loadStatus !== 1 && loadStatus !== 2) {
         async function loadResource() {
           const dataItemsLength = sliceState.dataItems.length;
 
@@ -225,7 +226,7 @@ export function generateResourceCreatedThunk(
   endpoint,
   idGetter = (obj) => obj.id
 ) {
-  return (newResourceObj, reqHeaders = {}) => {
+  return (newResourceData, reqHeaders = {}) => {
     return (dispatch, getState) => {
       const sliceState = getState()[sliceName];
       const createStatus = sliceState.createStatus;
@@ -234,10 +235,11 @@ export function generateResourceCreatedThunk(
           const res = await fetch(endpoint, {
             method: "POST",
             headers: { "Content-Type": "application/json", ...reqHeaders },
-            body: JSON.stringify(newResourceObj),
+            body: JSON.stringify(newResourceData),
           });
 
           if (res.status === 201) {
+            const newResourceObj = await res.json();
             dispatch(
               sliceActions.resourceCreated({
                 id: idGetter(newResourceObj),

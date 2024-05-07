@@ -5,14 +5,13 @@ import React from "react";
 
 // CONFIG >>> following are the links to be shown in the panel
 const links = [
-  { text: "Dashboard", href: "/dashboard", icon: "home" },
+  { text: "Dashboard", href: "/dash", icon: "home" },
   { text: "My Chats", href: "/chats", icon: "chat" },
   { text: "Text Detections", href: "/detect/text", icon: "text_fields" },
 ];
 
 export default function SidePanel() {
   const pathname = usePathname();
-  console.log(pathname);
   return (
     <div
       className="bg-lightDark px-5 py-6 shadow rounded"
