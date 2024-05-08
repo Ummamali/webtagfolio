@@ -237,7 +237,6 @@ export function generateResourceCreatedThunk(
             headers: { "Content-Type": "application/json", ...reqHeaders },
             body: JSON.stringify(newResourceData),
           });
-
           if (res.status === 201) {
             const newResourceObj = await res.json();
             dispatch(
@@ -251,7 +250,7 @@ export function generateResourceCreatedThunk(
           }
         }
         contactBackendToCreate().catch((err) =>
-          dispatch(sliceActions.failedCreating(idGetter(newResourceObj)))
+          dispatch(sliceActions.failedCreating(idGetter(newResourceData)))
         );
       }
     };

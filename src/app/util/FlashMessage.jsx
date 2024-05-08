@@ -31,7 +31,7 @@ export default function FlashMessage() {
   return (
     <div
       className={
-        "px-4 py-3 rounded-sm fixed bottom-4 right-4 w-[400px] text-sm transition-transform " +
+        "px-4 py-3 rounded-sm fixed bottom-4 right-4 w-[400px] z-30 text-sm transition-transform " +
         typeClasses[flashState.type]["card"] +
         " " +
         visibilityClasses

@@ -13,6 +13,7 @@ const links = [
 
 export default function SidePanel() {
   const pathname = usePathname();
+  const router = useRouter();
   return (
     <div
       className="bg-lightDark px-5 py-6 shadow rounded"
@@ -45,13 +46,13 @@ export default function SidePanel() {
           <span className="material-symbols-outlined mr-1">add</span>
           Image
         </Link>
-        <Link
-          href="/dash?createBucket=true"
+        <button
+          onClick={() => router.push(`${pathname}?createBucket=true`)}
           className="btn-mainAccent flex items-center"
         >
           <span className="material-symbols-outlined mr-1">add</span>
           Bucket
-        </Link>
+        </button>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ export const userSlice = createSlice({
   initialState: {
     token: null,
     userData: { featuredBuckets: [] },
+    userDataIsLoaded: false,
   },
   reducers: {
     userIdentified: (state, action) => {
@@ -16,6 +17,7 @@ export const userSlice = createSlice({
     },
     userDataLoaded: (state, action) => {
       state.userData = action.payload;
+      state.userDataIsLoaded = true;
     },
   },
 });

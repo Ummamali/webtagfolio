@@ -52,19 +52,9 @@ export default function page() {
         <div className="text-center mt-8">
           <p className="text-gray-400/70">
             <small>
-              Your buckets are the containers to save your media items
+              Your buckets are the containers to save your media items...
             </small>
           </p>
-          <button
-            className="text-mainAccent disabled:text-gray-300"
-            onClick={() => {
-              dispatchStore(loadBucketsThunk({ Authorization: token }));
-              dispatchStore(userDataLoadedThunk(token));
-            }}
-            disabled={bucketState.loadStatus === 1}
-          >
-            {bucketState.loadStatus === 1 ? "Loading..." : "Load Buckets"}
-          </button>
         </div>
       )}
 

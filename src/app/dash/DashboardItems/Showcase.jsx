@@ -2,11 +2,14 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { simpleBackend, taggingEngine } from "../../../../backend";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Showcase() {
   const user = useSelector((state) => state.user);
   const featuredBuckets = user.userData.featuredBuckets;
   const bucketsSlice = useSelector((state) => state.buckets);
+  const router = useRouter();
+
   return (
     <div className="pt-4 max-w-[1200px] mx-auto">
       <div className="flex h-[280px] space-x-4">
@@ -18,7 +21,10 @@ export default function Showcase() {
               background: `url(${taggingEngine.urls.getImage}/${user.userId}/${bucket.name}/${bucket.titleCover}) no-repeat center center/cover`,
             }}
           >
-            <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black to-black/20 hover:bg-black/50"></div>
+            <div
+              className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black to-black/20 hover:bg-black/50"
+              onClick={() => router.push(`/dash/explore/${bucket.name}`)}
+            ></div>
 
             <div className="absolute bottom-0 w-full p-4">
               <div className="text-yellow-600 -mb-2 -ml-0.5">
@@ -73,7 +79,7 @@ export default function Showcase() {
         <p className="text-sm text-center text-gray-500 mt-3">
           <small>
             Can't find it here?{" "}
-            <Link href={"/dash"} className="text-mainAccent/80">
+            <Link href={"/dash/explore"} className="text-mainAccent/80">
               All Buckets
             </Link>
           </small>

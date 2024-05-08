@@ -17,7 +17,7 @@ export default function Explorer() {
     if (currentBucketCat === 0) {
       setShownBuckets([...bucketsState.dataItems]);
     }
-  }, [currentBucketCat]);
+  }, [currentBucketCat, bucketsState.dataItems]);
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -56,6 +56,7 @@ export default function Explorer() {
               onClick={() => {
                 router.push(pathname + "/" + bkt.name);
               }}
+              key={bkt.name}
             >
               <div className="flex items-center space-x-6">
                 <span className="material-symbols-outlined text-gray-400 leading-none">
@@ -70,7 +71,9 @@ export default function Explorer() {
                 <p className="text-sm text-gray-500/80">
                   {parseInt(
                     (bkt.items.length /
-                      (bkt.items.length + bkt.disorderedBucket.length)) *
+                      (bkt.items.length + bkt.disorderedBucket.length !== 0
+                        ? bkt.items.length + bkt.disorderedBucket.length
+                        : 1)) *
                       100
                   )}
                   % organized
