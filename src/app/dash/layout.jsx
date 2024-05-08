@@ -7,7 +7,10 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { userIdentified } from "../../store/UserSlice";
 import FlashMessage from "../util/FlashMessage";
+import { useSearchParams } from "next/navigation";
+
 import { simpleBackend } from "../../../backend";
+import CreateBucketModel from "./CreateBucketMOdel";
 
 export default function DashboardLayout({
   children, // will be a page or nested layout
@@ -16,6 +19,7 @@ export default function DashboardLayout({
   const dispatch = useDispatch();
   const [cover, setCover] = useState(true);
   const userState = useSelector((state) => state.user);
+  const searchParams = useSearchParams();
   useEffect(() => {
     async function identifyUser() {
       const token = localStorage.getItem("Authorization");
@@ -50,6 +54,10 @@ export default function DashboardLayout({
       className="h-screen bg-mainDark py-4 px-6"
       style={{ display: "grid", gridTemplateRows: "auto 1fr" }}
     >
+      {/* necessary occasional models */}
+      {searchParams.get("createBucket") === "true" ? (
+        <CreateBucketModel />
+      ) : null}
       <TopHeader />
       <div style={{ display: "grid", gridTemplateColumns: "16rem auto" }}>
         <div

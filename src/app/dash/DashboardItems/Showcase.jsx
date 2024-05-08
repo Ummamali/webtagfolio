@@ -9,10 +9,11 @@ export default function Showcase() {
   const bucketsSlice = useSelector((state) => state.buckets);
   return (
     <div className="pt-4 max-w-[1200px] mx-auto">
-      <div className="flex h-[300px] space-x-4">
+      <div className="flex h-[280px] space-x-4">
         {featuredBuckets.map((bucket) => (
+          // Showcase card below
           <div
-            className="relative h-full flex-1 rounded shadow hover:cursor-pointer"
+            className="relative h-full flex-1 rounded shadow hover:cursor-pointer overflow-hidden"
             style={{
               background: `url(${taggingEngine.urls.getImage}/${user.userId}/${bucket.name}/${bucket.titleCover}) no-repeat center center/cover`,
             }}
@@ -39,12 +40,13 @@ export default function Showcase() {
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-white/40 text-sm italic">
-                    {
+                    {bucketsSlice.dataItems[
+                      bucketsSlice.indicesMap[bucket.name]
+                    ].items.length +
                       bucketsSlice.dataItems[
                         bucketsSlice.indicesMap[bucket.name]
-                      ].items.length
-                    }{" "}
-                    media items
+                      ].disorderedBucket.length}{" "}
+                    items
                   </p>
                   <div className="text-white/50 flex space-x-2 text-sm">
                     {bucketsSlice.dataItems[

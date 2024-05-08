@@ -9,6 +9,7 @@ import bucketsSlice, {
   loadBucketsThunk,
 } from "../../store/BucketsSlice";
 import Showcase from "./DashboardItems/Showcase";
+import AnalysisBarSection from "./DashboardItems/AnalysisBarSection";
 import { userDataLoaded, userDataLoadedThunk } from "../../store/UserSlice";
 
 export default function page() {
@@ -20,11 +21,6 @@ export default function page() {
 
   return (
     <div>
-      {/* necessary occasional models */}
-      {searchParams.get("createBucket") === "true" ? (
-        <CreateBucketMOdel />
-      ) : null}
-
       <div className="flex items-start justify-between mb-4">
         <div>
           <h2 className="text-gray-400 text-3xl font-light mt-4">
@@ -34,15 +30,19 @@ export default function page() {
             Your dashboard shows the featured buckets
           </p>
         </div>
-        <div className="text-gray-500 text-sm">
+        <div className="text-gray-500 text-sm text-right border-r border-gray-500/70 pr-2">
           <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 rounded-full bg-green-700"></div>
-            <p>Buckets: {bucketState.dataItems.length}</p>
+            <p>
+              Last Changes:{" "}
+              <span className="font-medium">
+                {userState.userData.lastUpdated
+                  ? new Date(userState.userData.lastUpdated).toDateString()
+                  : "N/A"}
+              </span>
+            </p>
           </div>
-          <div className="flex items-center space-x-1">
-            <div className="w-2 h-2 rounded-full bg-green-700"></div>
-            <p>Featured: {userState.userData.featuredBuckets.length}</p>
-          </div>
+          <p>Buckets: {bucketState.dataItems.length}</p>
+          <p>Featured: {userState.userData.featuredBuckets.length}</p>
         </div>
       </div>
 
@@ -67,6 +67,22 @@ export default function page() {
           </button>
         </div>
       )}
+
+      <main>
+        <div>
+          <h2 className="text-gray-400 text-2xl font-light mt-4">
+            Analysis Status
+          </h2>
+          <p className="text-sm text-gray-600">
+            Dashboard shows how well organized your buckets are
+          </p>
+        </div>
+        <div className="mt-2">
+          {userState.userData.featuredBuckets.map((bkt) => (
+            <AnalysisBarSection bucket={bkt} key={bkt.name} />
+          ))}
+        </div>
+      </main>
     </div>
   );
 }

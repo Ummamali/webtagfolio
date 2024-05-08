@@ -6,6 +6,7 @@ import React from "react";
 // CONFIG >>> following are the links to be shown in the panel
 const links = [
   { text: "Dashboard", href: "/dash", icon: "home" },
+  { text: "My Buckets", href: "/dash/explore", icon: "folder_open" },
   { text: "My Chats", href: "/chats", icon: "chat" },
   { text: "Text Detections", href: "/detect/text", icon: "text_fields" },
 ];
