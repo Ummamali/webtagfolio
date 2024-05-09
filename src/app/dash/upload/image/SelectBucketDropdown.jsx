@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 
 export default function SelectBucketDropdown({ bucketName, setBucketName }) {
   const [opened, setOpened] = useState(false);
-  let buckets = useSelector((state) => state.buckets.data.list);
+  let buckets = useSelector((state) => state.buckets.dataItems);
   buckets = buckets === undefined ? [] : buckets;
   const bucketNames = buckets.map((b) => b.name);
   return (

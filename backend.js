@@ -107,7 +107,13 @@ async function askFacialTags(filenames, bucketName, token) {
 }
 
 // recognize media items
-async function recognizeMediaItems(mediaNames, bucketName, token, tagsObj) {
+async function recognizeMediaItems(
+  mediaNames,
+  bucketName,
+  token,
+  tagsObj,
+  bucketIndex
+) {
   const res = await fetch(taggingEngine.urls.ragisterMediaItems, {
     method: "POST",
     headers: {
@@ -118,6 +124,7 @@ async function recognizeMediaItems(mediaNames, bucketName, token, tagsObj) {
       bucketName: bucketName,
       mediaNames: mediaNames,
       tags: tagsObj,
+      bucketIndex,
     }),
   });
   if (res.ok) {

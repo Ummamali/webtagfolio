@@ -94,22 +94,22 @@ export default function ImageBox({
   }
 
   function gotSelected(idx) {
-    addTagToTagsObj(objectTags[idx], "object", file.name);
+    addTagToTagsObj(objectTags[idx], "objects", file.name);
     setSelectedObjectTags((prev) => [...prev, idx]);
   }
 
   function gotUnselected(idx) {
-    removeTagFromTagsObj(objectTags[idx], "object", file.name);
+    removeTagFromTagsObj(objectTags[idx], "objects", file.name);
     setSelectedObjectTags((prev) => prev.filter((i) => i !== idx));
   }
 
   function facialGotSelected(idx) {
-    addTagToTagsObj(myFacialTags[idx], "person", file.name);
+    addTagToTagsObj(myFacialTags[idx], "people", file.name);
     setSelectedFacialTags((prev) => [...prev, idx]);
   }
 
   function facialGotUnselected(idx) {
-    removeTagFromTagsObj(myFacialTags[idx], "person", file.name);
+    removeTagFromTagsObj(myFacialTags[idx], "people", file.name);
     setSelectedFacialTags((prev) => prev.filter((i) => i !== idx));
   }
 

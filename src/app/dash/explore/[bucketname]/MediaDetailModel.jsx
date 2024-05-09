@@ -3,6 +3,7 @@ import Model from "../../../util/Model";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useSelector } from "react-redux";
+import MediaDetailTags from "./MediaDetailTags";
 import {
   getImageData,
   formatFileSize,
@@ -22,14 +23,15 @@ export default function MediaDetailModel() {
       bucketState.dataItems[
         bucketState.indicesMap[searchParams.get("bucketname")]
       ].items;
-    for (const item of thisBucketItems) {
+
+    for (const [idx, item] of thisBucketItems.entries()) {
       if (item.title === searchParams.get("detailModel")) {
         const newItem = JSON.parse(JSON.stringify(item));
         newItem.url = `${taggingEngine.urls.getImage}/${
           userState.userId
         }/${searchParams.get("bucketname")}/${newItem.title}`;
         getImageData(newItem.url).then((data) => {
-          setMediaItem({ ...newItem, ...data });
+          setMediaItem({ ...newItem, ...data, index: idx });
         });
       }
     }
@@ -37,7 +39,7 @@ export default function MediaDetailModel() {
 
   return (
     <Model close={() => router.back()}>
-      <main className="max-w-[1200px] h-[95vh] bg-lightDark mx-auto mt-4 py-8 px-12 rounded shadow-md">
+      <main className="max-w-[1200px] h-[95vh] bg-lightDark mx-auto mt-4 py-8 px-12 rounded shadow-md overflow-y-auto">
         {mediaItem !== null ? (
           <div>
             <div className="flex items-start justify-between">
@@ -81,13 +83,18 @@ export default function MediaDetailModel() {
                 <p>{formatFileSize(mediaItem.size)}</p>
               </div>
             </div>
-            <div className="relative h-[500px] w-full mt-6">
+            <div className="relative h-[500px] w-full mt-6 mb-8">
               <Image
                 src={mediaItem.url}
                 fill={true}
                 style={{ objectFit: "contain" }}
               />
             </div>
+            <MediaDetailTags
+              mediaItem={mediaItem}
+              bucketname={searchParams.get("bucketname")}
+              setMediaItem={setMediaItem}
+            />
           </div>
         ) : (
           <p className="text-gray-400 animate-pulse-fast text-center">

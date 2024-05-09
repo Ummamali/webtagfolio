@@ -24,6 +24,7 @@ export default function UploadImage() {
 
   const [bucketName, setBucketName] = useState(null);
   const [tagsObj, setTagsObj] = useState({});
+  const bucketsState = useSelector((state) => state.buckets);
 
   const [recognizedMediaNames, setRecognizedMediaNames] = useState([]);
 
@@ -102,7 +103,7 @@ export default function UploadImage() {
     setTagsObj((prev) => {
       const newOne = JSON.parse(JSON.stringify(prev));
       if (newOne[mediaName] === undefined) {
-        newOne[mediaName] = { object: [], person: [] };
+        newOne[mediaName] = { objects: [], people: [] };
       }
       newOne[mediaName][tagType].push(tagText);
       return newOne;
@@ -145,16 +146,33 @@ export default function UploadImage() {
 
     // all good
     taggingEngine.handlers
-      .recognizeMediaItems(mediaNames, bucketName, token, tagsObj)
+      .recognizeMediaItems(
+        mediaNames,
+        bucketName,
+        token,
+        tagsObj,
+        bucketsState.indicesMap[bucketName]
+      )
       .then((resObj) => {
         dispatchStore(
           flashedSuccess(`Successfully uploaded ${mediaNames.length} item(s)`)
         );
         setRecognizedMediaNames((prev) => [...prev, ...mediaNames]);
+        const mediaItems = [];
+        for (const name of mediaNames) {
+          mediaItems.push({ title: name, path: "/", tags: tagsObj[name] });
+        }
+        dispatchStore(
+          bucketsActions.newMediaAdded({
+            bucketname: bucketName,
+            mediaItems: mediaItems,
+          })
+        );
       })
-      .catch((err) =>
-        dispatchStore(flashedError("Unable to properly upload media items"))
-      );
+      .catch((err) => {
+        console.log(err);
+        dispatchStore(flashedError("Unable to properly upload media items"));
+      });
   }
 
   return (

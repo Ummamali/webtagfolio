@@ -10,7 +10,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={globalFont.className}>
-      <body>
+      <body className="bg-mainDark">
         <StoreProvider>{children}</StoreProvider>
       </body>
     </html>

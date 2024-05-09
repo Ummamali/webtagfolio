@@ -7,10 +7,11 @@ export default function AnalysisBarSection({ bucket }) {
   const router = useRouter();
   const thisBucket =
     bucketsState.dataItems[bucketsState.indicesMap[bucket.name]];
-  const percentage =
+  const percentage = parseInt(
     (thisBucket.items.length /
       (thisBucket.disorderedBucket.length + thisBucket.items.length)) *
-    100;
+      100
+  );
   return (
     <div
       className="rounded hover:bg-gray-600/20 hover:cursor-pointer p-3 py-4 "
