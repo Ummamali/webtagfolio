@@ -13,6 +13,7 @@ const mediaOptions = ["Organized", "Disorganized"];
 export default function BucketExplorer({ params }) {
   const [mediaOp, setMediaOp] = useState(0);
   const [selectedTags, setSelectedTags] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
   const bucketState = useSelector((state) => state.buckets);
   const searchParams = useSearchParams();
   const thisBucket =
@@ -26,14 +27,35 @@ export default function BucketExplorer({ params }) {
         : 1)) *
       100
   );
+
   useEffect(() => {
-    const op = parseInt(mediaOp);
-    if (op === 0) {
-      console.log("now showing organized");
-    } else {
-      console.log("new showing unorganized");
+    const selectedTagnames = selectedTags.map(
+      (tgIdx) => thisBucket.summary[tgIdx]
+    );
+    const newFilterList = new Set();
+    for (const mediaItem of thisBItems) {
+      let containsTag = false;
+      for (const tag of selectedTagnames) {
+        const mediaItemTags = [
+          ...mediaItem.tags.objects,
+          ...mediaItem.tags.people,
+        ];
+        if (mediaItemTags.includes(tag)) {
+          containsTag = true;
+          break;
+        }
+      }
+      if (!containsTag) {
+        newFilterList.add(mediaItem.title);
+      }
     }
-  }, [mediaOp]);
+    if (selectedTagnames.length > 0) {
+      setFilteredItems(Array.from(newFilterList));
+    } else {
+      setFilteredItems([]);
+    }
+  }, [selectedTags]);
+
   return (
     <div>
       {searchParams.get("detailModel") ? <MediaDetailModel /> : null}
@@ -96,15 +118,17 @@ export default function BucketExplorer({ params }) {
           </p>
         </div>
       </div>
-      <TagsSelector
-        allTags={thisBucket.summary}
-        selectedIndices={selectedTags}
-        setSelectedIndices={setSelectedTags}
-      />
+      {parseInt(mediaOp) === 0 ? (
+        <TagsSelector
+          allTags={thisBucket.summary}
+          selectedIndices={selectedTags}
+          setSelectedIndices={setSelectedTags}
+        />
+      ) : null}
       <MediaList
-        allTags={thisBucket.summary}
-        selectedIndices={selectedTags}
+        mediaOp={parseInt(mediaOp)}
         thisBucket={thisBucket}
+        filteredItems={filteredItems}
       />
     </div>
   );

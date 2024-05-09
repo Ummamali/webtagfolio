@@ -45,6 +45,56 @@ function suggestColors(images) {
   }
 }
 
+export function formatFileSize(sizeInBytes) {
+  const KB = 1024;
+  const MB = KB * KB;
+
+  if (sizeInBytes < KB) {
+    return sizeInBytes + " bytes";
+  } else if (sizeInBytes < MB) {
+    return (sizeInBytes / KB).toFixed(2) + " KB";
+  } else {
+    return (sizeInBytes / MB).toFixed(2) + " MB";
+  }
+}
+
+export async function getImageData(url) {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+
+    const reader = new FileReader();
+    reader.readAsDataURL(blob);
+
+    return new Promise((resolve, reject) => {
+      reader.onload = function () {
+        const img = new Image();
+        img.src = reader.result;
+
+        img.onload = function () {
+          resolve({
+            width: img.width,
+            height: img.height,
+            fileType: blob.type,
+            size: blob.size,
+            lastModified: response.headers.get("Last-Modified"),
+          });
+        };
+
+        img.onerror = function (error) {
+          reject(error);
+        };
+      };
+
+      reader.onerror = function (error) {
+        reject(error);
+      };
+    });
+  } catch (error) {
+    throw new Error("Error fetching image data");
+  }
+}
+
 export function countOccurrences(array) {
   const counts = {};
   array.forEach((item) => {
@@ -116,4 +166,38 @@ export function findClosestColorName(...rgb) {
   }
 
   return colorName;
+}
+
+export async function downloadImage(imageUrl, fileName = "image.jpg") {
+  try {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+export function downloadTags(tagsObj) {
+  const json = JSON.stringify(tagsObj);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = window.URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "tags.txt";
+  document.body.appendChild(link);
+  link.click();
+
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }

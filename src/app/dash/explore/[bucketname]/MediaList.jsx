@@ -1,11 +1,12 @@
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { taggingEngine } from "../../../../../backend";
 import { useSelector } from "react-redux";
 import { usePathname, useRouter } from "next/navigation";
+import OrganizedMediaListItem from "./OrganizedMediaListItem";
+import DisorganizedMediaListItem from "./DisorganizedMediaListItem";
 
-export default function MediaList({ allTags, selectedIndices, thisBucket }) {
-  const [items, setItems] = useState(thisBucket.items);
+export default function MediaList({ mediaOp, thisBucket, filteredItems }) {
   const userState = useSelector((state) => state.user);
   const router = useRouter();
   const pathname = usePathname();
@@ -16,40 +17,28 @@ export default function MediaList({ allTags, selectedIndices, thisBucket }) {
         <p className="text-gray-400">Name</p>
       </div>
       <div className="divide-y divide-gray-500/40 border-y border-gray-500/40">
-        {items.map((it) => (
-          <div
-            className="py-4 px-4 hover:cursor-pointer hover:bg-gray-700/20 flex items-center justify-between"
-            key={it.title}
-            onClick={() =>
-              router.push(
-                pathname +
-                  `?detailModel=${it.title}?bucketname=${thisBucket.name}`
-              )
-            }
-          >
-            <div className="flex items-center space-x-6">
-              <Image
-                width={30}
-                height={30}
-                style={{ objectFit: "cover", width: 30, height: 30 }}
-                src={`${taggingEngine.urls.getImage}/${userState.userId}/${thisBucket.name}/${it.title}`}
-                className="rounded-sm"
+        {mediaOp === 0
+          ? thisBucket.items
+              .filter((itm) => !filteredItems.includes(itm.title))
+              .map((it) => (
+                <OrganizedMediaListItem
+                  it={it}
+                  thisBucket={thisBucket}
+                  pathname={pathname}
+                  router={router}
+                  userState={userState}
+                />
+              ))
+          : null}
+        {mediaOp === 1
+          ? thisBucket.disorderedBucket.map((it) => (
+              <DisorganizedMediaListItem
+                it={it}
+                thisBucket={thisBucket}
+                userState={userState}
               />
-              <a
-                className="text-gray-400 hover:text-mainAccent"
-                href={`${taggingEngine.urls.getImage}/${userState.userId}/${thisBucket.name}/${it.title}`}
-                download={`${taggingEngine.urls.getImage}/${userState.userId}/${thisBucket.name}/${it.title}`}
-                target="_blank"
-              >
-                {it.title}
-              </a>
-            </div>
-            <div className="text-gray-400/70 text-sm text-right">
-              <p>Objects: {it.tags.objects.length}</p>
-              <p>People: {it.tags.people.length}</p>
-            </div>
-          </div>
-        ))}
+            ))
+          : null}
       </div>
     </div>
   );
