@@ -8,7 +8,7 @@ const DropdownMenu = ({
   className = "",
 }) => {
   const handleChange = (e) => {
-    setCurrentOption(e.target.value);
+    setCurrentOption(parseInt(e.target.value));
   };
 
   return (
