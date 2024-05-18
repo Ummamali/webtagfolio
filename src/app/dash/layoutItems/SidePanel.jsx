@@ -8,7 +8,8 @@ const links = [
   { text: "Dashboard", href: "/dash", icon: "home" },
   { text: "My Buckets", href: "/dash/explore", icon: "folder_open" },
   { text: "My Chats", href: "/chats", icon: "chat" },
-  { text: "Text Detections", href: "/detect/text", icon: "text_fields" },
+  { text: "Text Detections", href: "/dash/text", icon: "text_fields" },
+  { text: "Enhancement", href: "/dash/media", icon: "brush" },
 ];
 
 export default function SidePanel() {

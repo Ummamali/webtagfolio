@@ -201,3 +201,10 @@ export function downloadTags(tagsObj) {
   document.body.removeChild(link);
   window.URL.revokeObjectURL(url);
 }
+
+export const truncateText = (text, maxLength) => {
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return text.substring(0, maxLength) + "...";
+};

@@ -94,7 +94,7 @@ h1{
 }
 
 .message{
-    display: block;
+    display: flex;
     max-width: max-content;
     margin-left: auto;
     padding: 10px;
@@ -105,5 +105,11 @@ h1{
     background-color: #015DBB;
     color: white;
     text-align: right;
+    
+}
+.bot-message{
+    background-color: grey;
+    text-align: right;
+    align-self: flex-start;
     
 }

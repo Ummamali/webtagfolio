@@ -4,15 +4,20 @@ import ImageBox from "./ImageBox";
 import SelectBucketDropdown from "./SelectBucketDropdown";
 import { taggingEngine } from "../../../../../backend";
 import { useDispatch, useSelector } from "react-redux";
+import ImagePreview from "./ImagePreview";
 import {
   flashedError,
   flashedInfo,
   flashedSuccess,
+  imageRemoved,
+  imagesAdded,
 } from "../../../../store/ApplicationSlice";
 import {
   bucketsActions,
   loadBucketsThunk,
 } from "../../../../store/BucketsSlice";
+import DetailEdditorModel from "./DetailEdditorModel";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function UploadImage() {
   const token = useSelector((state) => state.user.token);
@@ -21,12 +26,16 @@ export default function UploadImage() {
   const [selected, setSelected] = useState([]);
   const [facialLoading, setFacialLoading] = useState(false);
   const [facialTags, setFacialTags] = useState({});
+  const router = useRouter();
+  const pathname = usePathname();
 
   const [bucketName, setBucketName] = useState(null);
   const [tagsObj, setTagsObj] = useState({});
   const bucketsState = useSelector((state) => state.buckets);
+  const loadedImagesState = useSelector((state) => state.app.imageUpload);
 
   const [recognizedMediaNames, setRecognizedMediaNames] = useState([]);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     dispatchStore(loadBucketsThunk({ token: token }));
@@ -43,16 +52,18 @@ export default function UploadImage() {
   // lists all the files when they are selected
   function listFiles(e) {
     // Access the files property of the file input element
-    setImageFiles((prev) => {
-      const newFiles = [...prev];
+    // setImageFiles((prev) => {
+    //   const newFiles = [...prev];
 
-      // Iterate through the selected files
-      const selectedFiles = e.target.files;
-      for (let i = 0; i < selectedFiles.length; i++) {
-        newFiles.push(selectedFiles[i]);
-      }
-      return newFiles;
-    });
+    //   // Iterate through the selected files
+    //   const selectedFiles = e.target.files;
+    //   for (let i = 0; i < selectedFiles.length; i++) {
+    //     newFiles.push(selectedFiles[i]);
+    //   }
+    //   return newFiles;
+    // });
+    const selectedFiles = e.target.files;
+    dispatchStore(imagesAdded());
   }
 
   function doFacialRecognition() {
@@ -97,27 +108,6 @@ export default function UploadImage() {
       .catch((err) => {
         setFacialLoading(false);
       });
-  }
-
-  function addTagToTagsObj(tagText, tagType, mediaName) {
-    setTagsObj((prev) => {
-      const newOne = JSON.parse(JSON.stringify(prev));
-      if (newOne[mediaName] === undefined) {
-        newOne[mediaName] = { objects: [], people: [] };
-      }
-      newOne[mediaName][tagType].push(tagText);
-      return newOne;
-    });
-  }
-
-  function removeTagFromTagsObj(tagText, tagType, mediaName) {
-    setTagsObj((prev) => {
-      const newOne = JSON.parse(JSON.stringify(prev));
-      newOne[mediaName][tagType] = newOne[mediaName][tagType].filter(
-        (t) => t !== tagText
-      );
-      return newOne;
-    });
   }
 
   function sendForRecognition() {
@@ -177,6 +167,9 @@ export default function UploadImage() {
 
   return (
     <div className="bg-mainDark px-4 py-6">
+      {searchParams.get("detailEditor") === "true" ? (
+        <DetailEdditorModel />
+      ) : null}
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl text-gray-100/70 mb-1">Upload an Image</h1>
@@ -198,9 +191,12 @@ export default function UploadImage() {
           id="fileInput"
           name="fileInput"
           accept=".jpg, .jpeg"
-          className="text-gray-400"
+          className="text-mainDark"
           multiple={true}
-          onChange={listFiles}
+          onChange={(e) => {
+            const selectedFiles = e.target.files;
+            dispatchStore(imagesAdded(selectedFiles));
+          }}
         />
         <div className="space-y-4 mt-6">
           <div className="flex items-center justify-between">
@@ -227,25 +223,44 @@ export default function UploadImage() {
               </button>
             </div>
           </div>
-          {imageFiles.length > 0 ? (
-            imageFiles.map((f, idx) => (
-              <ImageBox
-                file={f}
-                idx={idx}
-                key={f.name}
-                markSelected={markSelected}
-                unmarkSelected={unmarkSelected}
-                selected={selected}
-                myFacialTags={facialTags[f.name] ? facialTags[f.name] : null}
-                addTagToTagsObj={addTagToTagsObj}
-                removeTagFromTagsObj={removeTagFromTagsObj}
-              />
-            ))
-          ) : (
-            <small className="text-gray-500 block text-center">
-              No Images to be analyzed
-            </small>
-          )}
+
+          <div className="divide-gray-500/30 divide-y">
+            {loadedImagesState.data.length > 0 ? (
+              loadedImagesState.data.map((item, idx) => (
+                <div
+                  key={`${item.name}-${idx}`}
+                  className="flex items-center py-4 px-2 rounded-sm hover:bg-lightDark hover:cursor-pointer"
+                  onClick={(e) => {
+                    if (e.target.tagName !== "SPAN") {
+                      router.push(
+                        `${pathname}?detailEditor=true&imageName=${item.name}`
+                      );
+                    }
+                  }}
+                >
+                  <ImagePreview
+                    file={item.file}
+                    className={"justify-self-start h-12 w-12"}
+                  />
+                  <h4 className="text-lg text-gray-400 ml-4">{item.name}</h4>
+                  <button
+                    className="block justify-self-end ml-auto text-red-500"
+                    onClick={() => {
+                      dispatchStore(imageRemoved({ imageName: item.name }));
+                    }}
+                  >
+                    <span className="material-symbols-outlined leading-none">
+                      delete
+                    </span>
+                  </button>
+                </div>
+              ))
+            ) : (
+              <small className="text-gray-500 block text-center">
+                No Images to be analyzed
+              </small>
+            )}
+          </div>
         </div>
       </div>
     </div>
