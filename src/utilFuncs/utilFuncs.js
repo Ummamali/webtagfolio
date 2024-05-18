@@ -58,6 +58,29 @@ export function formatFileSize(sizeInBytes) {
   }
 }
 
+export function getImageDimensions(file) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) {
+      reject(new Error("File is not an image"));
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        resolve({ width: img.naturalWidth, height: img.naturalHeight });
+      };
+      img.onerror = reject;
+      img.src = event.target.result;
+    };
+
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 export async function getImageData(url) {
   try {
     const response = await fetch(url);
@@ -208,3 +231,73 @@ export const truncateText = (text, maxLength) => {
   }
   return text.substring(0, maxLength) + "...";
 };
+
+export function convertBoundingBox(
+  scaledX,
+  scaledY,
+  scaledWidth,
+  scaledHeight,
+  originalWidth,
+  originalHeight,
+  scaledWidthImage,
+  scaledHeightImage
+) {
+  // Calculate the scaling factors
+  const scaleX = originalWidth / scaledWidthImage;
+  const scaleY = originalHeight / scaledHeightImage;
+
+  // Convert the bounding box coordinates and dimensions
+  const originalX = scaledX * scaleX;
+  const originalY = scaledY * scaleY;
+  const originalBoxWidth = scaledWidth * scaleX;
+  const originalBoxHeight = scaledHeight * scaleY;
+
+  return {
+    x: originalX,
+    y: originalY,
+    width: originalBoxWidth,
+    height: originalBoxHeight,
+  };
+}
+
+export async function getCroppedImageFile(
+  originalX,
+  originalY,
+  originalBoxWidth,
+  originalBoxHeight,
+  originalImageFile
+) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      canvas.width = originalBoxWidth;
+      canvas.height = originalBoxHeight;
+
+      // Draw the cropped portion of the image onto the canvas
+      ctx.drawImage(
+        img,
+        originalX,
+        originalY,
+        originalBoxWidth,
+        originalBoxHeight,
+        0,
+        0,
+        originalBoxWidth,
+        originalBoxHeight
+      );
+
+      // Convert the canvas to a Blob, then to a File
+      canvas.toBlob((blob) => {
+        const croppedFile = new File([blob], originalImageFile.name, {
+          type: originalImageFile.type,
+        });
+        resolve(croppedFile);
+      }, originalImageFile.type);
+    };
+    img.onerror = () => reject(new Error("Failed to load image"));
+    img.src = URL.createObjectURL(originalImageFile);
+  });
+}

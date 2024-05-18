@@ -13,10 +13,9 @@ export default function ProvisionalSuggSelector({
 }) {
   const dispatchStore = useDispatch();
   const inputRef = useRef();
-  provisionalSuggestions = { loadStatus: 2, items: ["one", "two", "three"] };
   return (
     <div>
-      <h4 className="text-lg text-gray-400 mb-4">Suggestions for selection</h4>
+      <h4 className="text-gray-400/90 mb-4">Suggestions for selection</h4>
       <form
         className="mb-4"
         onSubmit={(e) => {
@@ -27,6 +26,7 @@ export default function ProvisionalSuggSelector({
               suggestion: inputRef.current.value,
             })
           );
+          inputRef.current.value = "";
         }}
       >
         <input
@@ -67,7 +67,7 @@ export default function ProvisionalSuggSelector({
             </div>
           ))}
         </div>
-        {provisionalSuggestions.loadStatus === 0 ? (
+        {provisionalSuggestions.loadStatus === 1 ? (
           <p className="text-gray-400/50">
             <small>Loading...</small>
           </p>

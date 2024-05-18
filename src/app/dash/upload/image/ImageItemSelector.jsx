@@ -2,9 +2,14 @@ import Image from "next/image";
 import React, { useRef, useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
+  provisionalAskThunk,
   provisionalBoxCreated,
   provisionalBoxDestroyed,
 } from "../../../../store/ApplicationSlice";
+import {
+  convertBoundingBox,
+  getCroppedImageFile,
+} from "../../../../utilFuncs/utilFuncs";
 // import { flashedSuccess } from "../../store/ApplicationSlice";
 
 function pushAndGetSortedNewArray(boxArray, newBox) {
@@ -75,6 +80,27 @@ export default function ImageSelector({ thisImage, modeIdx }) {
                 ],
               })
             );
+            // then we ask the server to recognize any face in the box
+
+            const originalBox = convertBoundingBox(
+              startPoint[0],
+              startPoint[1],
+              dimensions[0],
+              dimensions[1],
+              thisImage.originalDimension.width,
+              thisImage.originalDimension.height,
+              artboardRef.current.clientWidth,
+              artboardRef.current.clientHeight
+            );
+            getCroppedImageFile(
+              originalBox.x,
+              originalBox.y,
+              originalBox.width,
+              originalBox.height,
+              thisImage.file
+            ).then((croppedImageFile) => {
+              dispatch(provisionalAskThunk(croppedImageFile, thisImage.name));
+            });
           }
           setDimensions(null);
           setStartPoint(null);
@@ -118,33 +144,7 @@ export default function ImageSelector({ thisImage, modeIdx }) {
             }}
           ></div>
         ) : null}
-        {modeIdx === 0 && provisionalBox !== null ? (
-          <form
-            className="absolute z-50 -translate-y-full"
-            style={{ top: provisionalBox[1], left: provisionalBox[0] }}
-            onSubmit={(e) => {
-              e.preventDefault();
-              const tag = inputRef.current.value;
-              if (tag.length > 1) {
-                setBoxes((prev) =>
-                  pushAndGetSortedNewArray(prev, {
-                    tag: tag,
-                    box: provisionalBox,
-                  })
-                );
-                setProvisionalBox(null);
-                dispatch(flashedSuccess("Tag added..."));
-              }
-            }}
-          >
-            <input
-              className="bg-white text-sm text-gray-900 focus:outline-none rounded-sm px-2 py-0.5 mb-0.5 placeholder:text-gray-600 placeholder:italic"
-              autoFocus={true}
-              placeholder="Type, press Enter or Esc..."
-              ref={inputRef}
-            />
-          </form>
-        ) : null}
+
         {/* Following is view for edit mode */}
         {modeIdx === 1
           ? boxes.map((b, idx) => (

@@ -18,6 +18,7 @@ import {
 } from "../../../../store/BucketsSlice";
 import DetailEdditorModel from "./DetailEdditorModel";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { getImageDimensions } from "../../../../utilFuncs/utilFuncs";
 
 export default function UploadImage() {
   const token = useSelector((state) => state.user.token);
@@ -195,7 +196,19 @@ export default function UploadImage() {
           multiple={true}
           onChange={(e) => {
             const selectedFiles = e.target.files;
-            dispatchStore(imagesAdded(selectedFiles));
+            const dimensions = [];
+            for (const file of selectedFiles) {
+              dimensions.push(getImageDimensions(file));
+            }
+            Promise.all(dimensions).then((answer) => {
+              const actionPayload = [];
+              let i = 0;
+              for (const file of selectedFiles) {
+                actionPayload.push({ file: file, dimension: answer[i] });
+                i += 1;
+              }
+              dispatchStore(imagesAdded(actionPayload));
+            });
           }}
         />
         <div className="space-y-4 mt-6">
@@ -229,7 +242,7 @@ export default function UploadImage() {
               loadedImagesState.data.map((item, idx) => (
                 <div
                   key={`${item.name}-${idx}`}
-                  className="flex items-center py-4 px-2 rounded-sm hover:bg-lightDark hover:cursor-pointer"
+                  className="flex items-center py-4 px-4 rounded-sm hover:bg-lightDark hover:cursor-pointer"
                   onClick={(e) => {
                     if (e.target.tagName !== "SPAN") {
                       router.push(
@@ -242,9 +255,9 @@ export default function UploadImage() {
                     file={item.file}
                     className={"justify-self-start h-12 w-12"}
                   />
-                  <h4 className="text-lg text-gray-400 ml-4">{item.name}</h4>
+                  <h4 className=" text-gray-400/80 ml-4">{item.name}</h4>
                   <button
-                    className="block justify-self-end ml-auto text-red-500"
+                    className="block justify-self-end ml-auto text-red-500/80"
                     onClick={() => {
                       dispatchStore(imageRemoved({ imageName: item.name }));
                     }}

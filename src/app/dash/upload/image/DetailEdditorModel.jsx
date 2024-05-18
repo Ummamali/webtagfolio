@@ -5,6 +5,7 @@ import { useSelector } from "react-redux";
 import ImageItemSelector from "./ImageItemSelector";
 import Dropdown from "../../../util/Dropdown";
 import ProvisionalSuggSelector from "./ProvisionalSuggSelector";
+import { truncateText } from "../../../../utilFuncs/utilFuncs";
 
 const options = ["select", "edit"];
 
@@ -26,7 +27,8 @@ export default function DetailEdditorModel() {
     <Model close={close}>
       <div className="bg-mainDark w-[90vw] h-[90vh] mx-auto mt-4 flex items-stretch">
         <div className="flex-1">
-          <div>
+          <div className="flex justify-center items-center py-4">
+            <p className="text-sm text-gray-400/70 mr-2">Selection mode</p>
             <Dropdown
               options={options}
               currentOption={modeIdx}
@@ -36,7 +38,11 @@ export default function DetailEdditorModel() {
           <ImageItemSelector thisImage={thisImage} modeIdx={modeIdx} />
         </div>
         <div className="bg-gray-400/5 px-6 py-4 min-w-[400px]">
-          <h2>{thisImage.name}</h2>
+          <div className="mb-4">
+            <h2 className="text-lg font-light text-gray-400">
+              {truncateText(thisImage.name, 20)}
+            </h2>
+          </div>
           {thisImage.provisionalBox !== null ? (
             <ProvisionalSuggSelector
               provisionalSuggestions={thisImage.provisionalSuggestions}

@@ -1,4 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { taggingEngine } from "../../backend";
+import { resolve } from "path";
 
 export const appSlice = createSlice({
   name: "app",
@@ -34,12 +36,13 @@ export const appSlice = createSlice({
       state.flash.type = "INFO";
     },
     imagesAdded: (state, action) => {
-      for (const file of action.payload) {
+      for (const { file, dimension } of action.payload) {
         state.imageUpload.data.push({
           name: file.name,
           file: file,
-          tags: { object: [], people: {} },
-          boxes: { object: [], people: {} },
+          originalDimension: dimension,
+          tags: { object: [], people: [] },
+          boxes: { object: [], people: [] },
           provisionalSuggestions: { loadStatus: 0, items: [] },
           provisionalBox: null,
           selectedSuggestionIds: [],
@@ -104,7 +107,7 @@ export const appSlice = createSlice({
       );
       state.imageUpload.data[
         thisImageIndex
-      ].provisionalSuggestions.loadingStatus = 2;
+      ].provisionalSuggestions.loadStatus = 1;
     },
     provisionalSiggestionsLoaded: (state, action) => {
       const thisImageIndex = state.imageUpload.data.findIndex(
@@ -115,7 +118,7 @@ export const appSlice = createSlice({
       );
       state.imageUpload.data[
         thisImageIndex
-      ].provisionalSuggestions.loadingStatus = 2;
+      ].provisionalSuggestions.loadStatus = 2;
     },
     tagAdded: (state, action) => {
       state.imageUpload.data[action.payload.imageName];
@@ -134,9 +137,41 @@ export const {
   imageRemoved,
   provisionalBoxCreated,
   provisionalBoxDestroyed,
+  loadingProvisionalSuggestions,
+  provisionalSiggestionsLoaded,
   suggestionGotSelected,
   suggestionGotUnselected,
   userSuggested,
 } = appSlice.actions;
+
+export function provisionalAskThunk(imageFile, imageName) {
+  return (dispatch) => {
+    async function contactServer() {
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      const res = await fetch(taggingEngine.urls.recognizeSingleFAce, {
+        method: "POST",
+        body: formData,
+      });
+      if (res.ok) {
+        const resObj = await res.json();
+        const newSuggestions = [
+          ...resObj.predictions.confident,
+          ...resObj.predictions.blurry,
+        ];
+        console.log(newSuggestions);
+        dispatch(
+          appSlice.actions.provisionalSiggestionsLoaded({
+            imageName,
+            newSuggestions,
+          })
+        );
+      }
+    }
+
+    dispatch(appSlice.actions.loadingProvisionalSuggestions({ imageName }));
+    contactServer().catch((err) => console.log);
+  };
+}
 
 export default appSlice.reducer;
