@@ -1,6 +1,9 @@
 import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 import {
+  flashedSuccess,
+  pBoxSaved,
+  provisionalBoxDestroyed,
   suggestionGotSelected,
   suggestionGotUnselected,
   userSuggested,
@@ -15,7 +18,21 @@ export default function ProvisionalSuggSelector({
   const inputRef = useRef();
   return (
     <div>
-      <h4 className="text-gray-400/90 mb-4">Suggestions for selection</h4>
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-gray-400/90">Suggestions</h4>
+        <button
+          className="text-sm btn btn-mainAccent"
+          onClick={() => {
+            dispatchStore(pBoxSaved({ imageName: thisImageName }));
+            dispatchStore(flashedSuccess("Selection has been saved"));
+            dispatchStore(
+              provisionalBoxDestroyed({ imageName: thisImageName })
+            );
+          }}
+        >
+          Save
+        </button>
+      </div>
       <form
         className="mb-4"
         onSubmit={(e) => {

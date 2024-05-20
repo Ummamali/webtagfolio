@@ -9,7 +9,7 @@ export const contentServer = {
 };
 
 // Simple backend
-const simpleBackendServerURL = "http://192.168.10.67:5500";
+const simpleBackendServerURL = "http://127.0.0.1:5500";
 
 export const simpleBackend = {
   urls: {
@@ -29,13 +29,13 @@ export const simpleBackend = {
 };
 
 // Tagging engine
-const taggingEngineServerURL = "http://192.168.10.67:5501";
+const taggingEngineServerURL = "http://127.0.0.1:5501";
 export const taggingEngine = {
   handlers: { sendImagesToEngine: null, askTags: null },
   urls: {
     tagImage: `${taggingEngineServerURL}/image/save`,
     askTags: `${taggingEngineServerURL}/image/askTags`,
-    recognizeFaces: `${taggingEngineServerURL}/image/tags/facial`,
+    recognizeAllFaces: `${taggingEngineServerURL}/image/tags/facial`,
     recognizeSingleFAce: `${taggingEngineServerURL}/image/tags/facial/singleface`,
     ragisterMediaItems: `${taggingEngineServerURL}/image/recognize`,
     getImage: `${taggingEngineServerURL}/image/get`,

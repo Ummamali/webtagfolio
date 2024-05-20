@@ -69,19 +69,6 @@ export default function ImageSelector({ thisImage, modeIdx }) {
             dimensions[0] > 10 &&
             dimensions[1] > 10
           ) {
-            dispatch(
-              provisionalBoxCreated({
-                imageName: thisImage.name,
-                box: [
-                  startPoint[0],
-                  startPoint[1],
-                  dimensions[0],
-                  dimensions[1],
-                ],
-              })
-            );
-            // then we ask the server to recognize any face in the box
-
             const originalBox = convertBoundingBox(
               startPoint[0],
               startPoint[1],
@@ -92,6 +79,19 @@ export default function ImageSelector({ thisImage, modeIdx }) {
               artboardRef.current.clientWidth,
               artboardRef.current.clientHeight
             );
+            dispatch(
+              provisionalBoxCreated({
+                imageName: thisImage.name,
+                box: [
+                  startPoint[0],
+                  startPoint[1],
+                  dimensions[0],
+                  dimensions[1],
+                ],
+                originalPBox: originalBox,
+              })
+            );
+            // then we ask the server to recognize any face in the box
             getCroppedImageFile(
               originalBox.x,
               originalBox.y,

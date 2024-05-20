@@ -42,10 +42,18 @@ export const appSlice = createSlice({
           file: file,
           originalDimension: dimension,
           tags: { object: [], people: [] },
-          boxes: { object: [], people: [] },
+          boxes: [],
           provisionalSuggestions: { loadStatus: 0, items: [] },
           provisionalBox: null,
+          originalPBox: null,
           selectedSuggestionIds: [],
+          overallSuggestions: {
+            loadStatus: { people: 0, object: 0 },
+            suggestions: {
+              object: { list: [], selectedIdcs: [] },
+              people: { list: [], selectedIdcs: [] },
+            },
+          },
         });
       }
     },
@@ -60,12 +68,15 @@ export const appSlice = createSlice({
       );
       state.imageUpload.data[thisImageIndex].provisionalBox =
         action.payload.box;
+      state.imageUpload.data[thisImageIndex].originalPBox =
+        action.payload.originalPBox;
     },
     provisionalBoxDestroyed: (state, action) => {
       const thisImageIndex = state.imageUpload.data.findIndex(
         (item) => item.name === action.payload.imageName
       );
       state.imageUpload.data[thisImageIndex].provisionalBox = null;
+      state.imageUpload.data[thisImageIndex].originalPBox = null;
       state.imageUpload.data[thisImageIndex].provisionalSuggestions = {
         loadStatus: 0,
         items: [],
@@ -120,8 +131,44 @@ export const appSlice = createSlice({
         thisImageIndex
       ].provisionalSuggestions.loadStatus = 2;
     },
-    tagAdded: (state, action) => {
-      state.imageUpload.data[action.payload.imageName];
+    pBoxSaved: (state, action) => {
+      const thisImageIndex = state.imageUpload.data.findIndex(
+        (item) => item.name === action.payload.imageName
+      );
+      const box = state.imageUpload.data[thisImageIndex].originalPBox;
+      const tags = state.imageUpload.data[
+        thisImageIndex
+      ].selectedSuggestionIds.map(
+        (idx) =>
+          state.imageUpload.data[thisImageIndex].provisionalSuggestions.items[
+            idx
+          ]
+      );
+      state.imageUpload.data[thisImageIndex].boxes.push({
+        box: box,
+        tags: tags,
+      });
+    },
+    suggestionsLoading: (state, action) => {
+      const thisImageIndex = state.imageUpload.data.findIndex(
+        (item) => item.name === action.payload.imageName
+      );
+      state.imageUpload.data[thisImageIndex].overallSuggestions.loadStatus[
+        action.payload.tagType
+      ] = 1;
+    },
+    suggestionsLoaded: (state, action) => {
+      const thisImageIndex = state.imageUpload.data.findIndex(
+        (item) => item.name === action.payload.imageName
+      );
+      for (const sug of action.payload.suggestions) {
+        state.imageUpload.data[thisImageIndex].overallSuggestions.suggestions[
+          action.payload.tagType
+        ].list.push(sug);
+      }
+      state.imageUpload.data[thisImageIndex].overallSuggestions.loadStatus[
+        action.payload.tagType
+      ] = 2;
     },
   },
 });
@@ -142,7 +189,43 @@ export const {
   suggestionGotSelected,
   suggestionGotUnselected,
   userSuggested,
+  pBoxSaved,
+  suggestionsLoading,
+  suggestionsLoaded,
 } = appSlice.actions;
+
+export function loadOverallFacesThunk(imageFile, imageName) {
+  return (dispatch) => {
+    async function contactServer() {
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      const res = await fetch(taggingEngine.urls.recognizeAllFaces, {
+        method: "POST",
+        body: formData,
+      });
+      if (res.ok) {
+        const resObj = await res.json();
+        const combinedNewSuggestions = Array.from(
+          new Set([
+            ...resObj.predictions.confident,
+            ...resObj.predictions.blurry,
+          ])
+        );
+        dispatch(
+          suggestionsLoaded({
+            imageName: imageName,
+            tagType: "people",
+            suggestions: combinedNewSuggestions,
+          })
+        );
+      }
+    }
+
+    dispatch(suggestionsLoading({ imageName: imageName, tagType: "people" }));
+    console.log("analyzing faces...");
+    contactServer().catch((err) => console.log);
+  };
+}
 
 export function provisionalAskThunk(imageFile, imageName) {
   return (dispatch) => {
@@ -159,7 +242,6 @@ export function provisionalAskThunk(imageFile, imageName) {
           ...resObj.predictions.confident,
           ...resObj.predictions.blurry,
         ];
-        console.log(newSuggestions);
         dispatch(
           appSlice.actions.provisionalSiggestionsLoaded({
             imageName,
