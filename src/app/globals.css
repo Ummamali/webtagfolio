@@ -74,5 +74,6 @@ small {
 /* Custom scrollbar styling for Firefox */
 .myScrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
+  scrollbar-color: rgba(255, 255, 255, 0.3) #00000000;
+  padding-right: 10px;
 }

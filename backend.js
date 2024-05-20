@@ -34,7 +34,7 @@ export const taggingEngine = {
   handlers: { sendImagesToEngine: null, askTags: null },
   urls: {
     tagImage: `${taggingEngineServerURL}/image/save`,
-    askTags: `${taggingEngineServerURL}/image/askTags`,
+    overallObjectTags: `${taggingEngineServerURL}/image/tags/objects`,
     recognizeAllFaces: `${taggingEngineServerURL}/image/tags/facial`,
     recognizeSingleFAce: `${taggingEngineServerURL}/image/tags/facial/singleface`,
     ragisterMediaItems: `${taggingEngineServerURL}/image/recognize`,

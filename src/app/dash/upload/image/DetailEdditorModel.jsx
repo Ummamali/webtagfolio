@@ -6,8 +6,11 @@ import ImageItemSelector from "./ImageItemSelector";
 import Dropdown from "../../../util/Dropdown";
 import ProvisionalSuggSelector from "./ProvisionalSuggSelector";
 import OverallSuggestions from "./OverallSuggestions";
-import { truncateText } from "../../../../utilFuncs/utilFuncs";
-import { loadOverallFacesThunk } from "../../../../store/ApplicationSlice";
+import { formatFileSize, truncateText } from "../../../../utilFuncs/utilFuncs";
+import {
+  loadOverallFacesThunk,
+  loadOverallObjectsThunk,
+} from "../../../../store/ApplicationSlice";
 
 const options = ["select", "edit"];
 
@@ -41,20 +44,42 @@ export default function DetailEdditorModel() {
           <ImageItemSelector thisImage={thisImage} modeIdx={modeIdx} />
         </div>
         <div className="bg-gray-400/5 px-6 py-4 min-w-[400px]">
-          <div className="mb-4">
-            <h2 className="text-lg font-light text-gray-400 mb-2">
-              {truncateText(thisImage.name, 20)}
-            </h2>
-            <button
-              className="btn btn-mainAccent text-sm"
-              onClick={() => {
-                dispatchStore(
-                  loadOverallFacesThunk(thisImage.file, thisImage.name)
-                );
-              }}
-            >
-              Find People
-            </button>
+          <div className="mb-6">
+            <div className="flex items-center">
+              <span className="material-symbols-outlined mr-2 text-gray-400/90">
+                image
+              </span>
+              <h2 className="text-xl text-gray-400">
+                {truncateText(thisImage.name, 24)}
+              </h2>
+            </div>
+            <p className="mb-2 text-gray-400/50">
+              {formatFileSize(thisImage.file.size)}
+            </p>
+
+            <div className="flex items-center space-x-2 mb-2">
+              <button
+                className="btn btn-mainAccent flex-1"
+                onClick={() => {
+                  dispatchStore(
+                    loadOverallFacesThunk(thisImage.file, thisImage.name)
+                  );
+                }}
+              >
+                Find People
+              </button>
+              <button
+                className="btn btn-mainAccent flex-1"
+                onClick={() => {
+                  dispatchStore(
+                    loadOverallObjectsThunk(thisImage.file, thisImage.name)
+                  );
+                }}
+              >
+                Analyze
+              </button>
+            </div>
+            <button className="btn btn-mainAccent w-full">Upload Image</button>
           </div>
           {thisImage.provisionalBox !== null ? (
             <ProvisionalSuggSelector

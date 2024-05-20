@@ -170,6 +170,26 @@ export const appSlice = createSlice({
         action.payload.tagType
       ] = 2;
     },
+    overallSuggestionGotSelected: (state, action) => {
+      const thisImageIndex = state.imageUpload.data.findIndex(
+        (item) => item.name === action.payload.imageName
+      );
+      state.imageUpload.data[thisImageIndex].overallSuggestions.suggestions[
+        action.payload.tagType
+      ].selectedIdcs.push(action.payload.idx);
+    },
+    overallSuggestionGotUnselected: (state, action) => {
+      const thisImageIndex = state.imageUpload.data.findIndex(
+        (item) => item.name === action.payload.imageName
+      );
+      state.imageUpload.data[thisImageIndex].overallSuggestions.suggestions[
+        action.payload.tagType
+      ].selectedIdcs = state.imageUpload.data[
+        thisImageIndex
+      ].overallSuggestions.suggestions[
+        action.payload.tagType
+      ].selectedIdcs.filter((item) => item !== action.payload.idx);
+    },
   },
 });
 
@@ -192,6 +212,8 @@ export const {
   pBoxSaved,
   suggestionsLoading,
   suggestionsLoaded,
+  overallSuggestionGotSelected,
+  overallSuggestionGotUnselected,
 } = appSlice.actions;
 
 export function loadOverallFacesThunk(imageFile, imageName) {
@@ -224,6 +246,37 @@ export function loadOverallFacesThunk(imageFile, imageName) {
     dispatch(suggestionsLoading({ imageName: imageName, tagType: "people" }));
     console.log("analyzing faces...");
     contactServer().catch((err) => console.log);
+  };
+}
+
+export function loadOverallObjectsThunk(imageFile, imageName) {
+  return (dispatch) => {
+    async function contactServer(algo) {
+      console.log(`[${algo}] analyzing for objects...`);
+      const formData = new FormData();
+      formData.append("image", imageFile);
+      const res = await fetch(
+        `${taggingEngine.urls.overallObjectTags}/${algo}`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      if (res.ok) {
+        const resObj = await res.json();
+        dispatch(
+          suggestionsLoaded({
+            imageName: imageName,
+            tagType: "object",
+            suggestions: resObj.predictions,
+          })
+        );
+      }
+    }
+
+    dispatch(suggestionsLoading({ imageName: imageName, tagType: "object" }));
+    contactServer("RESNET").catch((err) => console.log);
+    // .then(() => contactServer("DENSENET"))
   };
 }
 
