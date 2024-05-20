@@ -42,31 +42,6 @@ export default function UploadImage() {
     dispatchStore(loadBucketsThunk({ token: token }));
   }, []);
 
-  function markSelected(idx) {
-    setSelected((prev) => [...prev, idx]);
-  }
-
-  function unmarkSelected(idx) {
-    setSelected((prev) => prev.filter((value) => value !== idx));
-  }
-
-  // lists all the files when they are selected
-  function listFiles(e) {
-    // Access the files property of the file input element
-    // setImageFiles((prev) => {
-    //   const newFiles = [...prev];
-
-    //   // Iterate through the selected files
-    //   const selectedFiles = e.target.files;
-    //   for (let i = 0; i < selectedFiles.length; i++) {
-    //     newFiles.push(selectedFiles[i]);
-    //   }
-    //   return newFiles;
-    // });
-    const selectedFiles = e.target.files;
-    dispatchStore(imagesAdded());
-  }
-
   function doFacialRecognition() {
     if (selected.length === 0) {
       dispatchStore(flashedError("No selections"));
@@ -246,7 +221,7 @@ export default function UploadImage() {
                   onClick={(e) => {
                     if (e.target.tagName !== "SPAN") {
                       router.push(
-                        `${pathname}?detailEditor=true&imageName=${item.name}`
+                        `${pathname}?detailEditor=true&imageName=${item.name}&bucketName=${bucketName}`
                       );
                     }
                   }}

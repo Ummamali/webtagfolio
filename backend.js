@@ -37,7 +37,8 @@ export const taggingEngine = {
     overallObjectTags: `${taggingEngineServerURL}/image/tags/objects`,
     recognizeAllFaces: `${taggingEngineServerURL}/image/tags/facial`,
     recognizeSingleFAce: `${taggingEngineServerURL}/image/tags/facial/singleface`,
-    ragisterMediaItems: `${taggingEngineServerURL}/image/recognize`,
+    uploadmultipleData: `${taggingEngineServerURL}/image/upload/multiple/data`,
+    uploadmultipleImageFiles: `${taggingEngineServerURL}/image/upload/multiple/files`,
     getImage: `${taggingEngineServerURL}/image/get`,
   },
 };

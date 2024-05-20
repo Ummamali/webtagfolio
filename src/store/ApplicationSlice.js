@@ -309,4 +309,89 @@ export function provisionalAskThunk(imageFile, imageName) {
   };
 }
 
+export function uploadImagesThunk(imageNames, bucketName, router) {
+  return (dispatch, getState) => {
+    const loadedImagesList = getState().app.imageUpload.data;
+    const token = getState().user.token;
+    const imageIndices = {};
+    for (const imageName of imageNames) {
+      imageIndices[imageName] = loadedImagesList.findIndex(
+        (item) => item.name === imageName
+      );
+    }
+    async function sendData() {
+      console.log("Sending data for multiple images");
+      const newItems = Object.values(imageIndices).map((index) => {
+        // Destructure the object, omitting the specified property
+        const obj = loadedImagesList[index];
+        const newObj = { title: obj.name, boxes: obj.boxes };
+        const objectTags =
+          obj.overallSuggestions.suggestions.object.selectedIdcs.map(
+            (i) => obj.overallSuggestions.suggestions.object.list[i]
+          );
+        const peopleTags =
+          obj.overallSuggestions.suggestions.people.selectedIdcs.map(
+            (i) => obj.overallSuggestions.suggestions.people.list[i]
+          );
+        newObj["tags"] = { objects: objectTags, people: peopleTags };
+        return newObj;
+      });
+      const res = await fetch(taggingEngine.urls.uploadmultipleData, {
+        method: "POST",
+        headers: { Authorization: token, "Content-Type": "application/json" },
+        body: JSON.stringify({ bucketName: bucketName, newItems: newItems }),
+      });
+      if (res.ok) {
+        const resObj = await res.json();
+        return resObj;
+      }
+    }
+
+    async function uploadFilesToBackend() {
+      const files = Object.values(imageIndices).map(
+        (i) => loadedImagesList[i].file
+      );
+      // Create FormData object
+      const formData = new FormData();
+
+      // Append each file to FormData
+      files.forEach((file) => {
+        formData.append("images", file);
+      });
+
+      // Send FormData to backend using fetch API
+      const response = await fetch(
+        taggingEngine.urls.uploadmultipleImageFiles + "/" + bucketName,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const resObj = await response.json();
+        if (resObj.success) {
+          dispatch(flashedSuccess("Image has been uploaded"));
+          router.back();
+        }
+      } else {
+        throw new Error("unable to save image");
+      }
+    }
+
+    sendData()
+      .then(async (resObj) => {
+        if (resObj.dataSaved) {
+          await uploadFilesToBackend();
+        } else {
+          throw new Error("Unable to upload image(s)");
+        }
+      })
+      .catch((err) => dispatch(flashedError("Unable to upload image(s)")));
+  };
+}
+
 export default appSlice.reducer;
