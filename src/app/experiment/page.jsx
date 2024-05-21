@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import ImageItemSelector from "./ImageItemSelector";
 import Dropdown from "../util/Dropdown";
+import { taggingEngine } from "../../../backend";
 
 const options = ["select", "edit"];
 
@@ -49,18 +50,13 @@ export default function DevComponentPage() {
   return (
     <div className="bg-white p-8 min-h-screen">
       <h1 className="text-red-800 text-4xl">This is an experimental page</h1>
-      <div>
-        <Dropdown
-          options={options}
-          currentOption={modeIdx}
-          setCurrentOption={setModeIdx}
-        />
-      </div>
-      <ImageItemSelector boxes={boxes} setBoxes={setBoxes} modeIdx={modeIdx} />
-      <form onSubmit={handleSubmit}>
-        <input type="file" onChange={handleFileChange} />
-        <button type="submit">Upload</button>
-      </form>
+      <button
+        onClick={() => {
+          fetch(taggingEngine.urls.chatSearch, { method: "POST" });
+        }}
+      >
+        Run it
+      </button>
     </div>
   );
 }

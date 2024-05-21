@@ -22,7 +22,6 @@ const bucketsSlice = createResourceSlice({
     },
     newMediaAdded: (state, action) => {
       const bucketIndex = state.indicesMap[action.payload.bucketname];
-
       state.dataItems[bucketIndex].items.push(...action.payload.mediaItems);
     },
   },

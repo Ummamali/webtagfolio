@@ -17,9 +17,17 @@ export default function ProvisionalSuggSelector({
   const dispatchStore = useDispatch();
   const inputRef = useRef();
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="text-gray-400/90">Suggestions</h4>
+    <div className="pt-4">
+      <div className="flex items-center mb-4 ">
+        <h4 className="text-gray-400/90 text-lg">Suggestions</h4>
+        <button
+          className="ml-auto flex items-center mr-3 text-gray-400 hover:text-red-500"
+          onClick={() =>
+            dispatchStore(provisionalBoxDestroyed({ imageName: thisImageName }))
+          }
+        >
+          <span className="material-symbols-outlined leading-none">close</span>
+        </button>
         <button
           className="text-sm btn btn-mainAccent"
           onClick={() => {
@@ -30,7 +38,7 @@ export default function ProvisionalSuggSelector({
             );
           }}
         >
-          Save
+          Save Box
         </button>
       </div>
       <form
@@ -53,11 +61,11 @@ export default function ProvisionalSuggSelector({
         />
       </form>
       <div>
-        <div className="space-y-2">
+        <div className="h-[600px] border border-gray-500/20 shadow-lg rounded px-2 py-4 overflow-y-scroll myScrollbar grid grid-cols-2 auto-rows-min gap-2">
           {provisionalSuggestions.items.map((it, idx) => (
             <div
               className={
-                "w-full text-gray-400/60 py-2.5 px-4 border border-gray-500/30 rounded hover:cursor-pointer hover:bg-black/10 " +
+                "w-full text-gray-400/60 py-2 px-4 border border-gray-500/30 rounded text-sm text-center hover:cursor-pointer hover:bg-black/10 " +
                 (selectedSuggestionIds.includes(idx)
                   ? "border-mainAccent/70 !text-mainAccent"
                   : "")

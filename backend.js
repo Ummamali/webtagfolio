@@ -40,6 +40,7 @@ export const taggingEngine = {
     uploadmultipleData: `${taggingEngineServerURL}/image/upload/multiple/data`,
     uploadmultipleImageFiles: `${taggingEngineServerURL}/image/upload/multiple/files`,
     getImage: `${taggingEngineServerURL}/image/get`,
+    chatSearch: `${taggingEngineServerURL}/chat/search`,
   },
 };
 

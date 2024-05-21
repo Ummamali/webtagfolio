@@ -260,6 +260,34 @@ export function convertBoundingBox(
   };
 }
 
+export function convertBoundingBoxToScaled(
+  originalX,
+  originalY,
+  originalWidth,
+  originalHeight,
+  originalImageWidth,
+  originalImageHeight,
+  scaledImageWidth,
+  scaledImageHeight
+) {
+  // Calculate the scaling factors
+  const scaleX = scaledImageWidth / originalImageWidth;
+  const scaleY = scaledImageHeight / originalImageHeight;
+
+  // Convert the bounding box coordinates and dimensions
+  const scaledX = originalX * scaleX;
+  const scaledY = originalY * scaleY;
+  const scaledBoxWidth = originalWidth * scaleX;
+  const scaledBoxHeight = originalHeight * scaleY;
+
+  return {
+    x: scaledX,
+    y: scaledY,
+    width: scaledBoxWidth,
+    height: scaledBoxHeight,
+  };
+}
+
 export async function getCroppedImageFile(
   originalX,
   originalY,

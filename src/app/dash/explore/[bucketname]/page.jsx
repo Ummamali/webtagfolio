@@ -97,7 +97,7 @@ export default function BucketExplorer({ params }) {
               Add Image
             </Link>
             <Link
-              href={`/dash/chat?bucket=${thisBucket.name}`}
+              href={`/dash/search/${thisBucket.name}`}
               className="btn border border-mainAccent text-mainAccent text-sm"
             >
               Find Media

@@ -27,16 +27,16 @@ export default function UploadImage() {
   const [selected, setSelected] = useState([]);
   const [facialLoading, setFacialLoading] = useState(false);
   const [facialTags, setFacialTags] = useState({});
+  const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
 
-  const [bucketName, setBucketName] = useState(null);
+  const [bucketName, setBucketName] = useState(searchParams.get("bucket"));
   const [tagsObj, setTagsObj] = useState({});
   const bucketsState = useSelector((state) => state.buckets);
   const loadedImagesState = useSelector((state) => state.app.imageUpload);
 
   const [recognizedMediaNames, setRecognizedMediaNames] = useState([]);
-  const searchParams = useSearchParams();
 
   useEffect(() => {
     dispatchStore(loadBucketsThunk({ token: token }));
@@ -190,16 +190,6 @@ export default function UploadImage() {
           <div className="flex items-center justify-between">
             <h3 className="text-2xl text-gray-100/70 mb-4">Media Items</h3>
             <div className="flex items-center">
-              <button
-                className={
-                  "btn border border-mainAccent text-mainAccent mr-2 text-sm " +
-                  (facialLoading ? "animate-bounce" : "")
-                }
-                disabled={facialLoading}
-                onClick={doFacialRecognition}
-              >
-                {facialLoading ? "Loading..." : "Find People"}
-              </button>
               <button
                 className={
                   "btn px-10 bg-mainAccent text-white/90 " +

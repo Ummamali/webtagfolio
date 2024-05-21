@@ -7,6 +7,7 @@ import Dropdown from "../../../util/Dropdown";
 import ProvisionalSuggSelector from "./ProvisionalSuggSelector";
 import OverallSuggestions from "./OverallSuggestions";
 import { formatFileSize, truncateText } from "../../../../utilFuncs/utilFuncs";
+import BoxListViewer from "./BoxListViewer";
 import {
   flashedError,
   flashedInfo,
@@ -117,8 +118,10 @@ export default function DetailEdditorModel() {
               thisImageName={thisImage.name}
               selectedSuggestionIds={thisImage.selectedSuggestionIds}
             />
-          ) : (
+          ) : modeIdx === 0 ? (
             <OverallSuggestions thisImage={thisImage} />
+          ) : (
+            <BoxListViewer thisImageBoxes={thisImage.boxes} />
           )}
         </div>
       </div>

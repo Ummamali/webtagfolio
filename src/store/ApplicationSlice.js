@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { taggingEngine } from "../../backend";
 import { resolve } from "path";
+import { bucketsActions } from "./BucketsSlice";
 
 export const appSlice = createSlice({
   name: "app",
@@ -347,7 +348,7 @@ export function uploadImagesThunk(imageNames, bucketName, router) {
       }
     }
 
-    async function uploadFilesToBackend() {
+    async function uploadFilesToBackend(itemsCreated) {
       const files = Object.values(imageIndices).map(
         (i) => loadedImagesList[i].file
       );
@@ -375,6 +376,12 @@ export function uploadImagesThunk(imageNames, bucketName, router) {
         const resObj = await response.json();
         if (resObj.success) {
           dispatch(flashedSuccess("Image has been uploaded"));
+          dispatch(
+            bucketsActions.newMediaAdded({
+              bucketname: bucketName,
+              mediaItems: itemsCreated,
+            })
+          );
           router.back();
         }
       } else {
@@ -385,7 +392,7 @@ export function uploadImagesThunk(imageNames, bucketName, router) {
     sendData()
       .then(async (resObj) => {
         if (resObj.dataSaved) {
-          await uploadFilesToBackend();
+          await uploadFilesToBackend(resObj.itemsCreated);
         } else {
           throw new Error("Unable to upload image(s)");
         }

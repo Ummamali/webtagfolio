@@ -8,6 +8,7 @@ import {
 } from "../../../../store/ApplicationSlice";
 import {
   convertBoundingBox,
+  convertBoundingBoxToScaled,
   getCroppedImageFile,
 } from "../../../../utilFuncs/utilFuncs";
 // import { flashedSuccess } from "../../store/ApplicationSlice";
@@ -147,20 +148,33 @@ export default function ImageSelector({ thisImage, modeIdx }) {
 
         {/* Following is view for edit mode */}
         {modeIdx === 1
-          ? boxes.map((b, idx) => (
-              <div
-                className={
-                  "border-2 border-black/40 absolute rounded-sm hover:bg-gray-200/40 hover:border-black cursor-pointer "
-                }
-                key={`${b.box[0]}${b.box[1]}${b.box[2]}${b.box[3]} - ${idx}`}
-                style={{
-                  left: `${b.box[0]}px`,
-                  top: `${b.box[1]}px`,
-                  width: `${b.box[2]}px`,
-                  height: `${b.box[3]}px`,
-                }}
-              ></div>
-            ))
+          ? thisImage.boxes.map((b, idx) => {
+              const scaledBox = convertBoundingBoxToScaled(
+                b.box.x,
+                b.box.y,
+                b.box.width,
+                b.box.height,
+                thisImage.originalDimension.width,
+                thisImage.originalDimension.height,
+                artboardRef.current.clientWidth,
+                artboardRef.current.clientHeight
+              );
+
+              return (
+                <div
+                  className={
+                    "border-2 border-black/40 bg-white/20 absolute rounded-sm hover:bg-gray-200/40 hover:border-black cursor-pointer "
+                  }
+                  key={`${b.box.x}${b.box.y}${b.box.width}${b.box.height} - ${idx}`}
+                  style={{
+                    left: `${scaledBox.x}px`,
+                    top: `${scaledBox.y}px`,
+                    width: `${scaledBox.width}px`,
+                    height: `${scaledBox.height}px`,
+                  }}
+                ></div>
+              );
+            })
           : null}
         <Image
           src={imageUrl !== null ? imageUrl : "/logo.png"}

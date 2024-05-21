@@ -57,7 +57,7 @@ export default function MediaDetailTags({
           </form>
         </div>
       </div>
-      <div className="mt-4">
+      <div className="mt-6">
         <h3 className="text-gray-400 text-xl mb-1">People</h3>
         <div className="flex flex-wrap space-x-2">
           {mediaItem.tags.people.map((t, i) => (
@@ -97,6 +97,20 @@ export default function MediaDetailTags({
               </span>
             </button>
           </form>
+        </div>
+      </div>
+      <div className="mt-6">
+        <h3 className="text-gray-400 text-xl mb-1">Boxes</h3>
+        <div className="space-y-4">
+          {mediaItem.boxes.map((boxObj) => (
+            <div className="flex flex-wrap border border-gray-400/20 rounded p-2 shadow-md">
+              {boxObj.tags.map((t) => (
+                <p className="bg-mainDark/70 mx-2 my-1 text-gray-400/80 rounded-sm py-1 px-4">
+                  {t}
+                </p>
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </div>
