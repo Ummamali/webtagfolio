@@ -39,7 +39,7 @@ export default function MediaDetailModel() {
 
   return (
     <Model close={() => router.back()}>
-      <main className="max-w-[1200px] h-[95vh] bg-lightDark mx-auto mt-4 py-8 px-12 rounded shadow-md overflow-y-auto">
+      <main className="max-w-[1200px] h-[95vh] myScrollbar bg-lightDark mx-auto mt-4 py-8 px-12 rounded shadow-md overflow-y-auto">
         {mediaItem !== null ? (
           <div>
             <div className="flex items-start justify-between">
