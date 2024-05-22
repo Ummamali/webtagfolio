@@ -2,6 +2,7 @@ import Image from "next/image";
 import React from "react";
 import SearchBar from "./TopHeaderChildren/SearchBar";
 import NotificationBtn from "./TopHeaderChildren/NotificationsBtn";
+import Link from "next/link";
 
 export default function TopHeader() {
   return (
@@ -9,7 +10,12 @@ export default function TopHeader() {
       <Image src="/logo.png" width={36} height={36} />
       <SearchBar />
       <div className="flex items-center space-x-2">
-        <button className="btn-mainAccent px-10">Chat</button>
+        <Link
+          href="/dash/upload/video"
+          className="btn-mainAccent px-10 text-sm"
+        >
+          Add Video
+        </Link>
         <NotificationBtn />
       </div>
     </header>

@@ -84,11 +84,9 @@ export function queriedBucketThunk(query, bucketName) {
 
     dispatch(messageSent({ bucketName: bucketName, text: query }));
     dispatch(started_thinking());
-    setTimeout(() => {
-      contactServer().catch((err) => {
-        console.log(err);
-        dispatch(stoped_thinking());
-      });
-    }, 500);
+    contactServer().catch((err) => {
+      console.log(err);
+      dispatch(stoped_thinking());
+    });
   };
 }

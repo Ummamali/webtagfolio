@@ -10,6 +10,7 @@ const links = [
   { text: "My Chats", href: "/chats", icon: "chat" },
   { text: "Text Detections", href: "/dash/text", icon: "text_fields" },
   { text: "Enhancement", href: "/dash/media", icon: "brush" },
+  { text: "My Videos", href: "/dash/videos", icon: "movie" },
 ];
 
 export default function SidePanel() {
