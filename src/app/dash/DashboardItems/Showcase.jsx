@@ -67,9 +67,12 @@ export default function Showcase() {
                       ))}
                   </div>
                 </div>
-                <button className="btn border border-mainAccent/50 text-mainAccent rounded-sm text-sm">
+                <Link
+                  href={`/dash/search/${bucket.name}`}
+                  className="btn border border-mainAccent/50 text-mainAccent rounded-sm text-sm"
+                >
                   Find
-                </button>
+                </Link>
               </div>
             </div>
           </div>

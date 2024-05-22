@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { taggingEngine } from "../../backend";
-import { resolve } from "path";
 import { bucketsActions } from "./BucketsSlice";
 
 export const appSlice = createSlice({
