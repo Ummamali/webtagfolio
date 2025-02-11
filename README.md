@@ -105,4 +105,9 @@ The frontend of this application is built using modern web technologies to ensur
 - **TailwindCSS** – Utility-first styling for faster and more maintainable designs.
 
 
+## License
+
+This project is licensed under the **MIT License**.  
+
+
 
