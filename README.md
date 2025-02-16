@@ -7,6 +7,8 @@ With its comprehensive suite of modules, TagFolio offers users a seamless and in
 
 From user management to image and video tagging, multimedia organization, text detection, social media analysis, and advanced natural language processing capabilities, TagFolio provides a holistic solution to streamline the entire workflow of handling multimedia content.
 
+Backend API: https://github.com/Ummamali/tagfolioapi
+
 ## Key Features  
 
 - **Image Tagging** – AI-powered object and person recognition for efficient media organization.  
