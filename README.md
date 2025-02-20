@@ -9,7 +9,9 @@ From user management to image and video tagging, multimedia organization, text d
 
 Backend API: https://github.com/Ummamali/tagfolioapi
 
+
 <img src="./preview.jpg" alt="Project Preview"/>
+
 
 ## Key Features  
 
@@ -45,24 +47,24 @@ Make sure you have the following installed on your system:
 ### Steps  
 
 1. **Clone the Repository**  
+
    ```bash
-   
    git clone https://github.com/ummamali/webtagfolio.git
 
-2. **Install Dependencies**  
-   ```bash
-   
+3. **Install Dependencies**  
+
+   ```bash   
    cd tagfolio
    npm install
 
-3. **Run (Development Mode)**  
-   ```bash
+5. **Run (Development Mode)**  
 
+   ```bash
    npm run dev
    
-4. **Build**  
+7. **Build**  
+
    ```bash
-   
    npm run build
 
 
