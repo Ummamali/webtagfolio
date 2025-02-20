@@ -46,12 +46,23 @@ Make sure you have the following installed on your system:
 
 1. **Clone the Repository**  
    ```bash
-   git clone https://github.com/yourusername/tagfolio.git
+   
+   git clone https://github.com/ummamali/webtagfolio.git
+
+2. **Install Dependencies**  
+   ```bash
+   
    cd tagfolio
    npm install
-   cp .env.example .env.local
+
+3. **Run (Development Mode)**  
+   ```bash
 
    npm run dev
+   
+4. **Build**  
+   ```bash
+   
    npm run build
 
 
