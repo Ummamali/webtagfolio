@@ -9,6 +9,8 @@ From user management to image and video tagging, multimedia organization, text d
 
 Backend API: https://github.com/Ummamali/tagfolioapi
 
+<img src="./preview.jpg" alt="Project Preview"/>
+
 ## Key Features  
 
 - **Image Tagging** – AI-powered object and person recognition for efficient media organization.  
